@@ -7,9 +7,9 @@
 //        '/dhis-web-commons/javascripts/dhis2/dhis2.util.js',
 //        '/dhis-web-commons/javascripts/dhis2/dhis2.period.js',
 //        '/dhis-web-commons/javascripts/jQuery/ui/jquery-ui.min.js',
-        '/dhis-web-commons/javascripts/dhis2/dhis2.translate.js',
-        '/dhis-web-commons/javascripts/dhis2/dhis2.menu.js',
-        '/dhis-web-commons/javascripts/dhis2/dhis2.menu.ui.js',
+        '../dhis-web-commons/javascripts/dhis2/dhis2.translate.js',
+        '../dhis-web-commons/javascripts/dhis2/dhis2.menu.js',
+        '../dhis-web-commons/javascripts/dhis2/dhis2.menu.ui.js',
         
     ];
     $.ajaxSetup({
@@ -46,12 +46,12 @@
             rel: 'stylesheet',
             type: 'text/css',
             //href: dhis2Root + '/dhis-web-commons/javascripts/jQuery/ui/css/redmond/jquery-ui.css'
-            href: dhis2Root + '/dhis-web-commons/font-awesome/css/font-awesome.min.css'
+            href: dhis2Root + '../dhis-web-commons/font-awesome/css/font-awesome.min.css'
         }).appendTo('head');
         jQuery('<link/>', {
             rel: 'stylesheet',
             type: 'text/css',
-            href: dhis2Root + '/dhis-web-commons/css/menu.css'
+            href: dhis2Root + '../dhis-web-commons/css/menu.css'
         }).appendTo('head');
     });
 })(jQuery);

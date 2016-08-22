@@ -1,6 +1,6 @@
 {
-	"TITLE_APP":"EyeSeeTea Dhis2 Server Utils",
-	"COMP_SCORE_TITLE":"Composite Score Update",
+	"TITLE_APP":"Dataset Recoding",
+	"DATASET_RECODING_TITLE":"Dataset Recoding",
 	"START_DATE":"Start Date",
 	"END_DATE":"End Date",
 	"PROGRAM_UID":"Program UID",

@@ -16,7 +16,7 @@
    You should have received a copy of the GNU General Public License
    along with Project Manager.  If not, see <http://www.gnu.org/licenses/>. */
 
-dhisServerUtilsConfig.controller('compScoreController', ["$scope",'$filter', "commonvariable", '$timeout', 'ProgramsList', function($scope, $filter, commonvariable, $timeout, ProgramsList) {
+dhisServerUtilsConfig.controller('datasetRecodingController', ["$scope",'$filter', "commonvariable", '$timeout', 'ProgramsList', function($scope, $filter, commonvariable, $timeout, ProgramsList) {
 	
 	var $translate = $filter('translate');
 

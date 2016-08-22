@@ -1,9 +1,9 @@
 var dhisServerUtilsConfig = angular.module("dhisServerUtilsConfig", ['ngRoute','Dhis2Api','pascalprecht.translate','ui.bootstrap','d2Menu', 'angularFileUpload','angularTreeview']);
 
 dhisServerUtilsConfig.config(function($routeProvider) {
-  $routeProvider.when('/CompScore', {
-	    templateUrl: "modules/compScore/compScoreView.html",
-	    controller: "compScoreController"
+  $routeProvider.when('/DatasetRecoding', {
+	    templateUrl: "modules/datasetRecoding/datasetRecodingView.html",
+	    controller: "datasetRecodingController"
 	  });
   $routeProvider.otherwise({
         redirectTo: '/'
