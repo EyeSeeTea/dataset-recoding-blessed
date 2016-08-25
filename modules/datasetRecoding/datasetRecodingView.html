@@ -18,7 +18,44 @@
 
 <h2>{{'DATASET_RECODING_TITLE' | translate}}</h2>
 
-<form name="form" ng-submit="form.$valid && submit()" ng-controller="datasetRecodingController" novalidate>
+<form class="form-horizontal">
+
+    <div class="form-group">
+        <label for="dataset" class="col-sm-2 control-label">{{ 'DATASET' | translate }}</label>
+        <div class="col-sm-10">
+            <select class="form-control" ng-model="dataset" ng-options="item as item.displayName for item in datasets" ng-change="datasetSelected()">
+                <option value="">{{ 'DATASET_OPTION' | translate }}</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="period" class="col-sm-2 control-label">{{ 'PERIOD' | translate }}</label>
+        <div class="col-sm-10">
+            <select class="form-control" ng-model="period" ng-options="item as item.name for item in periods">
+                <option value="">{{ 'PERIOD_OPTION' | translate }}</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group" ng-show="dataset">
+        <label for="period" class="col-sm-2 control-label">{{ 'ORGANISATION_UNIT' | translate }}</label>
+        <div class="col-sm-10">
+            <select class="form-control" ng-model="selectedOrganisationUnit" ng-options="item as item.displayName for item in organisationUnits">
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button class="btn btn-default">{{ 'GET_DATA' | translate }}</button>
+            <button ng-click="cancel()" class="btn btn-default">{{ 'CANCEL' | translate }}</button>
+            <button class="btn btn-primary" disabled="disabled">{{ 'UPDATE' | translate }}</button>
+        </div>
+    </div>
+</form>
+
+<!--<form name="form" ng-submit="form.$valid && submit()" ng-controller="datasetRecodingController" novalidate>
 
     <div class="row" ng-show="form.$submitted">
     	
@@ -68,4 +105,4 @@
 		<button type="submit" id="submit" class="btn btn-primary">{{ 'SUBMIT' | translate }}</button>						
 	</div>
 	
-</form>
+</form>-->

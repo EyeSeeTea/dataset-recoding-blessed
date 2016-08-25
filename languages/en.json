@@ -7,6 +7,13 @@
 	"SUBMIT": "Submit",
 	"VALIDATION_PROGRAM_UID": "Program UID required",
 	"VALIDATION_START_DATE": "Start Date required",
-	"VALIDATION_END_DATE": "End Date required"
-	
+	"VALIDATION_END_DATE": "End Date required",
+	"DATASET": "Data set",
+    "DATASET_OPTION": "[Select]",
+    "PERIOD": "Period",
+    "PERIOD_OPTION": "[Select period]",
+    "ORGANISATION_UNIT":"Organisation Unit",
+    "GET_DATA": "Get data",
+    "CANCEL": "Cancel",
+    "UPDATE": "Update"    
 }

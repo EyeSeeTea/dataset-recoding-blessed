@@ -6,7 +6,7 @@ dhisServerUtilsConfig.config(function($routeProvider) {
 	    controller: "datasetRecodingController"
 	  });
   $routeProvider.otherwise({
-        redirectTo: '/'
+        redirectTo: '/DatasetRecoding'
   });   
 
 });
