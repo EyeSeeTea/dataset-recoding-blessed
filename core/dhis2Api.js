@@ -46,22 +46,50 @@ Dhis2Api.factory("ProgramsList", ['$resource', 'commonvariable', function($resou
         { get: { method: "GET" } });
 }]);
 
-Dhis2Api.factory("Datasets",function($resource) {
-    return $resource("/api/24/dataSets/:id.json",{},
+Dhis2Api.factory("Datasets", function($resource) {
+    return $resource("/api/24/dataSets/:id.json", {},
         {
             query: {
-                method:"GET",
-                params:{
-                    fields:"id,displayName,periodType,organisationUnits[id,displayName]"
+                method: "GET",
+                params: {
+                    fields: "id,displayName,periodType,organisationUnits[id,displayName]"
                 },
-                isArray:true,
-                transformResponse: function (data, headers) {                
+                isArray: true,
+                transformResponse: function(data, headers) {
                     //return only datasets
-                    if(!data){
+                    if (!data) {
                         return [];
                     }
                     return JSON.parse(data).dataSets
-                }        
+                }
+            }
+        }
+    );
+});
+
+Dhis2Api.factory("MetaData", function($resource) {
+    return $resource("/dhis-web-dataentry/getMetaData.action", {},
+        {
+            query: {
+                method: "GET",
+                isArray: false,
+                transformResponse: function(data, headers) {
+                    return JSON.parse(data).metaData;
+                }
+            }
+        }
+    );
+});
+
+Dhis2Api.factory("MetaDataAssociations", function($resource) {
+    return $resource("/dhis-web-dataentry/getDataSetAssociations.action", {},
+        {
+            query: {
+                method: "GET",
+                isArray: false,
+                transformResponse: function(data, headers) {
+                    return JSON.parse(data).dataSetAssociations;
+                }
             }
         }
     );

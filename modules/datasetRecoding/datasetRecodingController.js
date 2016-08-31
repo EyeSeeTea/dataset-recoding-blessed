@@ -16,20 +16,64 @@
    You should have received a copy of the GNU General Public License
    along with Project Manager.  If not, see <http://www.gnu.org/licenses/>. */
 
-dhisServerUtilsConfig.controller('datasetRecodingController', function($scope, $filter, commonvariable, $timeout, ProgramsList, Datasets) {
+dhisServerUtilsConfig.controller('datasetRecodingController', function($scope, $filter, $q, Datasets, MetaData, MetaDataAssociations) {
 
     var $translate = $filter('translate');
     var $orderBy = $filter('orderBy');
+    
+    //Clears model stuff
+    var clearSelection =function (){        
+        $scope.periods = [];
+        $scope.organisationUnits = [];
+        $scope.currentCategories = [];
+                    
+        dhis2.de.currentDataSetId = null;    
+        dhis2.de.currentOrganisationUnitId = null;
+        dhis2.de.currentCategories = [];        
+    }
 
-    //Init stuff
+    //Inits model
     var init = function() {
+        $scope.loading = false;
         $scope.datasets = [];
+        $scope.dataset = null;
+        clearSelection();
+        loadDhisData();
         populateDataSets();
+    };
+    
+    //Loads metadata into dhis2 global var
+    var loadMetaData = function(metaData){
+        dhis2.de.emptyOrganisationUnits = metaData.emptyOrganisationUnits;
+        dhis2.de.significantZeros = metaData.significantZeros;
+        dhis2.de.dataElements = metaData.dataElements;
+        dhis2.de.indicatorFormulas = metaData.indicatorFormulas;
+        dhis2.de.dataSets = metaData.dataSets;
+        dhis2.de.optionSets = metaData.optionSets;
+        dhis2.de.defaultCategoryCombo = metaData.defaultCategoryCombo;
+        dhis2.de.categoryCombos = metaData.categoryCombos;
+        dhis2.de.categories = metaData.categories;        
+    };
+    
+    //Loads metadataAssociations into dhis2 global var
+    var loadMetaDataAssociations = function(metaDataAssociations){
+        dhis2.de.dataSetAssociationSets = metaDataAssociations.dataSetAssociationSets;
+        dhis2.de.organisationUnitAssociationSetMap = metaDataAssociations.organisationUnitAssociationSetMap;    
+    };    
+    
+    //Triggers metadata
+    var loadDhisData = function(){      
+      $q.all([MetaData.query().$promise, MetaDataAssociations.query().$promise])
+            .then(function(result) {
+                loadMetaData(result[0]);
+                loadMetaDataAssociations(result[1]);
+            });            
     };
 
     //Populate datasets
     var populateDataSets = function() {
         $scope.datasets = Datasets.query();
+        
     };
 
     //Populate periods according to dataset
@@ -45,14 +89,28 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($scope, $
             return organisationUnit.displayName.trim();
         });
     }
+    
+    //Populate attributes according to dataset
+    var populateAttributes = function(){
+        dhis2.de.currentCategories = dhis2.de.getCategories(dhis2.de.currentDataSetId);
+        $scope.currentCategories = dhis2.de.currentCategories;
+    };
 
     //DataSet selected
     $scope.datasetSelected = function() {
+        //Inits model
+        clearSelection();
+        
         //No dataset selected -> reset
         if (!$scope.dataset) {
-            $scope.periods = [];
-            $scope.organisationUnits = [];
+            return;                
         }
+        
+        //Set
+        dhis2.de.currentDataSetId = $scope.dataset.id;
+        
+        //Populate attributes        
+        populateAttributes(); 
 
         //Populate periods
         populatePeriods();
@@ -60,62 +118,33 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($scope, $
         //Populate orgunits
         populateOrgUnits();
     };
+    
+    //Returns true|false according to selection of attributes is complete or not
+    $scope.inputSelected = function(){
+        if (
+            $scope.selectedOrganisationUnit &&
+            $scope.dataset &&
+            $scope.period &&
+            dhis2.de.categoriesSelected() ) {
+            return true;
+        }
 
-    $scope.cancel = function() {
-        $scope.dataset = null;
-        $scope.period = null;
-        $scope.periods = [];
+        return false;
+    };
+    
+    //A category (attribute) has been selected
+    $scope.categorySelected = function(){
+        console.log("Category selected");
+        $scope.inputSelected();
     };
 
+    $scope.cancel = function() {
+        init();
+    };
+    
+    $scope.loadData = function(){
+        $scope.loading = true;
+    }
+
     init();
-
-    // $scope.openstart = function($event) {
-    //     $event.preventDefault();
-    //     $event.stopPropagation();
-
-    //     $scope.openedstart = true;
-    // };
-
-    // $scope.openend = function($event) {
-    //     $event.preventDefault();
-    //     $event.stopPropagation();
-
-    //     $scope.openedend = true;
-    // };
-
-    // $scope.submit = function() {
-
-    //     $scope.progressbarDisplayed = true;
-
-
-    //     var fecha_inicio = $filter('date')($scope.start_date, 'yyyy-MM-dd');
-    //     var fecha_fin = $filter('date')($scope.end_date, 'yyyy-MM-dd');
-
-    //     var result = ProgramsList.get();
-
-
-
-    //     //include current date in the file name, Helder
-    //     var today = new Date();
-    //     var dd = (today.getDate() < 10 ? '0' + today.getDate() : today.getDate());
-    //     var mm = (today.getMonth() < 9 ? '0' + (today.getMonth() + 1) : today.getMonth());
-    //     var yyyy = today.getFullYear();
-
-    //     //////
-    //     var fileName = $scope.file_name + "_" + yyyy + mm + dd;
-
-    //     var orgUnits_filter = "";
-
-    //     result.$promise.then(function(data) {
-    //         console.log('kk');
-    //         console.log(data);
-    //         console.log(data.programs);
-
-    //     });
-
-    //     $scope.progressbarDisplayed = false;
-    // }
-
-
-
 });
