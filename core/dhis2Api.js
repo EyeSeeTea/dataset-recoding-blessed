@@ -95,3 +95,38 @@ Dhis2Api.factory("MetaDataAssociations", function($resource) {
     );
 });
 
+Dhis2Api.factory('LoadForm', function($http) {
+    return function(dataSetId) {
+        return $http({
+            method: 'GET',
+            url: "/dhis-web-dataentry/loadForm.action",
+            params: { dataSetId: dataSetId }
+        });
+    }
+});
+
+Dhis2Api.factory('LoadFormValues', function($http) {
+    return function(dataSetId, periodId, organisationUnitId) {
+        var params = {
+            periodId: periodId,
+            dataSetId: dataSetId,
+            organisationUnitId: organisationUnitId,
+            multiOrganisationUnit: false
+        };
+        var cc = dhis2.de.getCurrentCategoryCombo();
+        var cp = dhis2.de.getCurrentCategoryOptionsQueryValue();
+
+        if (cc && cp) {
+            params.cc = cc;
+            params.cp = cp;
+        }
+
+        return $http({
+            method: 'GET',
+            url: "/dhis-web-dataentry/getDataValues.action",
+            params: params
+        });
+    }
+});
+
+
