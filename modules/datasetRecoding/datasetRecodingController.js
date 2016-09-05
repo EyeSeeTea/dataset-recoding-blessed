@@ -16,7 +16,7 @@
    You should have received a copy of the GNU General Public License
    along with Project Manager.  If not, see <http://www.gnu.org/licenses/>. */
 
-dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScope, $scope, $filter, $q, Datasets, MetaData, MetaDataAssociations, LoadForm, LoadFormValues) {
+dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScope, $scope, $filter, $q, Datasets, MetaData, MetaDataAssociations, LoadForm, LoadFormValues, DataValues) {
 
     var $translate = $filter('translate');
     var $orderBy = $filter('orderBy');
@@ -28,6 +28,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         $scope.currentCategories = [];
         $scope.currentForm = null;
         $scope.dataLoaded = false;
+        $scope.originalParams = {};
 
         dhis2.de.currentDataSetId = null;
         dhis2.de.currentOrganisationUnitId = null;
@@ -98,6 +99,19 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         $scope.currentCategories = dhis2.de.currentCategories;
     };
 
+    //Save current selection config
+    var saveCurrentParams = function() {
+        //Save basic values
+        var params = {
+            datasetId: $scope.dataset.id,
+            periodId: $scope.period.iso,
+            organisationUnitId: $scope.organisationUnit.id
+        }
+
+        //TODO Save attribute stuff
+        return params;
+    }
+
     //DataSet selected
     $scope.datasetSelected = function() {
         //Inits model
@@ -147,6 +161,14 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
     //Load formdata
     $scope.loadForm = function() {
         $scope.loading = true;
+        $scope.dataLoaded = false;
+        $scope.currentFormData = "";
+        $scope.currentForm = "";
+
+        //Reset originalParams
+        $scope.originalParams = saveCurrentParams();
+
+        //Load form structure
         LoadForm($scope.dataset.id)
             .success(function(data) {
                 $scope.currentForm = data;
@@ -160,6 +182,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
             $scope.loading = false;
             $scope.currentFormData = data;
             $scope.dataLoaded = true;
+
             //dataentry: form.js
             insertDataValues(data);
             //Set readonly to table inputs
@@ -170,10 +193,49 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
 
     //Move form data into new selection (organisationUnit, period, attributes combination)
     $scope.moveFormData = function() {
-        //TODO Remove old datavalues
+
+        //Show spinner while moving data
+        $scope.loading = true;
+        $scope.dataLoaded = false;
+        
+        //Save destination params
+        $scope.targetParams = saveCurrentParams();
+
+        //Remove data values from previous dataset combination
+        removeDataValues();
+
         //TODO Post new datavalues into selected combination
+        postNewDataValues();
+
         //TODO Show feedback to user
     };
+
+    //Removes current dataValues from the dataset
+    var removeDataValues = function() {
+        //Precondition
+        if (!$scope.currentFormData || !$scope.currentFormData.dataValues) {
+            return;
+        }
+
+        //Delete each datavalue 
+        angular.forEach($scope.currentFormData.dataValues, function(value) {
+            console.log("Removing", value);
+            var dataValueTokens = value.id.split("-");
+            var dataElementId = dataValueTokens[0];
+            var categoryOptionCombo = dataValueTokens[1];
+            DataValues.delete({
+                de: dataElementId,
+                pe: $scope.originalParams.periodId,
+                ou: $scope.originalParams.organisationUnitId,
+                co: categoryOptionCombo
+            });
+        });
+    };
+
+    //Posts datavalues into new dataset config
+    var postNewDataValues = function() {
+        //TODO
+    }
 
     init();
 });

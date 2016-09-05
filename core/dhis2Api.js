@@ -129,4 +129,13 @@ Dhis2Api.factory('LoadFormValues', function($http) {
     }
 });
 
+Dhis2Api.factory("DataValues", function($resource) {
+    return $resource("/api/24/dataValues.json", {
+        de:"@de",
+        pe:"@pe",
+        ou:"@ou",
+        co:"@co"
+    });
+});
+
 
