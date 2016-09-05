@@ -2,6 +2,7 @@
 	"TITLE_APP":"Dataset Recoding",
 	"DATASET_RECODING_TITLE":"Dataset Recoding",
     "PLEASE_WAIT": "Please wait while the system is processing",
+    "DATA_MOVED":"DataValues have been moved successfully",
 	"DATASET": "Data set",
     "DATASET_OPTION": "[Select dataset]",
     "PERIOD": "Period",

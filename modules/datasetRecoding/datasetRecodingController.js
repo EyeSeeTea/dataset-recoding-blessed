@@ -16,7 +16,7 @@
    You should have received a copy of the GNU General Public License
    along with Project Manager.  If not, see <http://www.gnu.org/licenses/>. */
 
-dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScope, $scope, $filter, $q, Datasets, MetaData, MetaDataAssociations, LoadForm, LoadFormValues, DataValues) {
+dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScope, $scope, $filter, $q, Datasets, MetaData, MetaDataAssociations, LoadForm, LoadFormValues, DataValues, CategoryCombos, DataValueSets) {
 
     var $translate = $filter('translate');
     var $orderBy = $filter('orderBy');
@@ -29,6 +29,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         $scope.currentForm = null;
         $scope.dataLoaded = false;
         $scope.originalParams = {};
+        $scope.showFeedback=false;
 
         dhis2.de.currentDataSetId = null;
         dhis2.de.currentOrganisationUnitId = null;
@@ -101,14 +102,13 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
 
     //Save current selection config
     var saveCurrentParams = function() {
-        //Save basic values
         var params = {
             datasetId: $scope.dataset.id,
             periodId: $scope.period.iso,
-            organisationUnitId: $scope.organisationUnit.id
-        }
+            organisationUnitId: $scope.organisationUnit.id,
+            categoryCombo: dhis2.de.dataSets[$scope.dataset.id].categoryCombo
+        };
 
-        //TODO Save attribute stuff
         return params;
     }
 
@@ -197,17 +197,15 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         //Show spinner while moving data
         $scope.loading = true;
         $scope.dataLoaded = false;
-        
+
         //Save destination params
         $scope.targetParams = saveCurrentParams();
 
         //Remove data values from previous dataset combination
         removeDataValues();
 
-        //TODO Post new datavalues into selected combination
-        postNewDataValues();
-
-        //TODO Show feedback to user
+        //Find categoryComboOption uid & post new datavalues
+        findCategoryComboOption();
     };
 
     //Removes current dataValues from the dataset
@@ -232,10 +230,100 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         });
     };
 
-    //Posts datavalues into new dataset config
-    var postNewDataValues = function() {
-        //TODO
+    //Resolves current attributes combination from CategoryCombos endpoint
+    var findCategoryComboOption = function() {
+        //Load target combination
+        var targetAttributeParams = $("select[id^='category-']").map(function(i, el) {
+            return $(el).val();
+        });
+
+        var categoryCombo = $scope.targetParams.categoryCombo;
+        CategoryCombos.get({ id: categoryCombo }, function(data) {
+            var categoryOptionCombos = data.categoryOptionCombos;
+            var categoryOptionComboId = null;
+            //No attributes -> nothing to search
+            if (targetAttributeParams.length == 0) {
+                categoryOptionComboId = categoryOptionCombos[0].id;
+            } else {
+                categoryOptionComboId = findCategoryOptionComboId(targetAttributeParams, categoryOptionCombos);
+            }
+
+            //Found -> send event (now we're ready to post new values)
+            $rootScope.$broadcast('categoryOptionComboFound', categoryOptionComboId);
+        });
+    };
+
+    //On new categoryOptionCombo found -> post new values
+    $rootScope.$on('categoryOptionComboFound', function(event, categoryOptionComboId) {
+        console.log("categoryOptionComboFound", categoryOptionComboId);
+
+        var dataValues = buildDataValues();
+        var dataValueSet = new DataValueSets(
+            {
+                "dataSet": $scope.targetParams.datasetId,
+                "period": $scope.targetParams.periodId,
+                "orgUnit": $scope.targetParams.organisationUnitId,
+                "attributeOptionCombo": categoryOptionComboId,
+                "dataValues": dataValues
+            }
+        );
+
+        dataValueSet.$save(function(){
+            $scope.showFeedback=true;
+            $scope.loading=false;
+            $scope.dataLoaded = true;
+        });
+    });
+
+    //Builds an array of datavalues to post into a new dataset
+    var buildDataValues = function() {
+        //Precondition
+        if (!$scope.currentFormData || !$scope.currentFormData.dataValues) {
+            return [];
+        }
+
+        //Delete each datavalue 
+        var dataValues = [];
+        angular.forEach($scope.currentFormData.dataValues, function(value) {
+            var dataValueTokens = value.id.split("-");
+            var dataElementId = dataValueTokens[0];
+            var categoryOptionCombo = dataValueTokens[1];
+
+            this.push(
+                { "dataElement": dataElementId, "categoryOptionCombo": categoryOptionCombo, "value": value.val }
+            );
+        }, dataValues);
+
+        return dataValues;
     }
+
+
+    //Finds the categoryOptionCombo ID for the current combination to attributes
+    var findCategoryOptionComboId = function(currentAttributes, categoryOptionCombos) {
+
+        var attributesNeeded = currentAttributes.length;
+        //Loop over each combo
+        for (var i = 0; i < categoryOptionCombos.length; i++) {
+            var categoryOptionCombo = categoryOptionCombos[i];
+
+            //Every attribute must be contained in this combo
+            var attributesFound = 0;
+            for (var j = 0; j < categoryOptionCombo.categoryOptions.length; j++) {
+                //Look for combo option into attribute values
+                var categoryOption = categoryOptionCombo.categoryOptions[j];
+                for (var k = 0; k < currentAttributes.length; k++) {
+                    if (currentAttributes[k] === categoryOption.id) {
+                        attributesFound++;
+                    }
+                }
+            }
+
+            if (attributesFound === attributesNeeded) {
+                return categoryOptionCombo.id;
+            }
+        }
+        return null;
+    };
 
     init();
 });

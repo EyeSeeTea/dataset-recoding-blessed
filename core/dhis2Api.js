@@ -139,3 +139,16 @@ Dhis2Api.factory("DataValues", function($resource) {
 });
 
 
+Dhis2Api.factory("CategoryCombos", function($resource) {
+    return $resource("/api/24/categoryCombos/:id.json", {
+        fields:"categoryOptionCombos[id,categoryOptions]"
+    });
+});
+
+Dhis2Api.factory("DataValueSets", function($resource) {
+    return $resource("/api/24/dataValueSets");
+});
+
+
+
+
