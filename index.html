@@ -35,7 +35,9 @@
     </script>
 
     <!--jquery-->
-    <script src="include/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="include/jquery/jquery.min.js" type="text/javascript"></script>    
+    <script type="text/javascript" src="../../../dhis-web-commons/javascripts/jQuery/ui/jquery-ui.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../../../dhis-web-commons/javascripts/jQuery/ui/css/redmond/jquery-ui.css" />
     <script type="text/javascript" src="../../../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.min.js"></script>
     <script type="text/javascript" src="../../../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.plus.min.js"></script>
     <script type="text/javascript" src="../../../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.picker.min.js"></script>
@@ -54,13 +56,17 @@
     <!-- Dhis menu -->
     <link type="text/css" rel="stylesheet" href="../../../dhis-web-commons/font-awesome/css/font-awesome.min.css" />
     <link type="text/css" rel="stylesheet" media="screen" href="../../../dhis-web-commons/css/menu.css">
+    
     <!-- Required to load periods of times -->
     <script type="text/javascript" src="../../../dhis-web-commons/javascripts/dhis2/dhis2.translate.js"></script>
     <script type="text/javascript" src="../../../dhis-web-commons/javascripts/dhis2/dhis2.menu.js"></script>
     <script type="text/javascript" src="../../../dhis-web-commons/javascripts/dhis2/dhis2.menu.ui.js"></script>
     <script type="text/javascript" src="../../../dhis-web-commons/javascripts/dhis2/dhis2.util.js"></script>
     <script type="text/javascript" src="../../../dhis-web-commons/javascripts/dhis2/dhis2.period.js"></script>
-
+    <script type="text/javascript" src="../../../dhis-web-commons/select2/select2.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../../../dhis-web-commons/select2/select2.css" />
+    
+    
     <!-- Required to load dataentry stuff -->
     <script type="text/javascript" src="../../../dhis-web-commons/javascripts/dhis2/dhis2.storage.js"></script>
     <script type="text/javascript" src="../../../dhis-web-commons/javascripts/dhis2/dhis2.storage.idb.js"></script>
@@ -69,7 +75,7 @@
     <script type="text/javascript" src="../../../dhis-web-commons/javascripts/dhis2/dhis2.storage.ss.js"></script>
     <script type="text/javascript" src="../../../dhis-web-commons/javascripts/commons.js"></script>
     <script type="text/javascript" src="../../../dhis-web-dataentry/javascript/form.js"></script>
-    <script type="text/javascript" src="../../../dhis-web-dataentry/javascript/entry.js"></script>
+    <script type="text/javascript" src="../../../dhis-web-dataentry/javascript/entry.js"></script>    
 
     <!-- principal Script-->
     <script src="core/dhis2Api.js" type="text/javascript"></script>
@@ -100,6 +106,7 @@
         dhis2.period.calendar = $.calendars.instance('gregorian');
         dhis2.period.generator = new dhis2.period.PeriodGenerator( dhis2.period.calendar, dhis2.period.format );     
         dhis2.period.picker = new dhis2.period.DatePicker( dhis2.period.calendar, dhis2.period.format );
+        i18n_select_option = "";
     </script>
     <div class="row">
         <div class="col-md-9">

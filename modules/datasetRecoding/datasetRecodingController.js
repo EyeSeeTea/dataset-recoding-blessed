@@ -21,98 +21,9 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
     var $translate = $filter('translate');
     var $orderBy = $filter('orderBy');
 
-    //Clears model stuff
-    var clearSelection = function() {
-        $scope.periods = [];
-        $scope.organisationUnits = [];
-        $scope.currentCategories = [];
-        $scope.currentForm = null;
-        $scope.dataLoaded = false;
-        $scope.originalParams = {};
-        $scope.showFeedback=false;
-
-        dhis2.de.currentDataSetId = null;
-        dhis2.de.currentOrganisationUnitId = null;
-        dhis2.de.currentCategories = [];
-    }
-
-    //Inits model
-    var init = function() {
-        $scope.loading = false;
-        $scope.datasets = [];
-        $scope.dataset = null;
-        clearSelection();
-        loadDhisData();
-        populateDataSets();
-    };
-
-    //Loads metadata into dhis2 global var
-    var loadMetaData = function(metaData) {
-        dhis2.de.emptyOrganisationUnits = metaData.emptyOrganisationUnits;
-        dhis2.de.significantZeros = metaData.significantZeros;
-        dhis2.de.dataElements = metaData.dataElements;
-        dhis2.de.indicatorFormulas = metaData.indicatorFormulas;
-        dhis2.de.dataSets = metaData.dataSets;
-        dhis2.de.optionSets = metaData.optionSets;
-        dhis2.de.defaultCategoryCombo = metaData.defaultCategoryCombo;
-        dhis2.de.categoryCombos = metaData.categoryCombos;
-        dhis2.de.categories = metaData.categories;
-    };
-
-    //Loads metadataAssociations into dhis2 global var
-    var loadMetaDataAssociations = function(metaDataAssociations) {
-        dhis2.de.dataSetAssociationSets = metaDataAssociations.dataSetAssociationSets;
-        dhis2.de.organisationUnitAssociationSetMap = metaDataAssociations.organisationUnitAssociationSetMap;
-    };
-
-    //Triggers metadata
-    var loadDhisData = function() {
-        $q.all([MetaData.query().$promise, MetaDataAssociations.query().$promise])
-            .then(function(result) {
-                loadMetaData(result[0]);
-                loadMetaDataAssociations(result[1]);
-            });
-    };
-
-    //Populate datasets
-    var populateDataSets = function() {
-        $scope.datasets = Datasets.query();
-
-    };
-
-    //Populate periods according to dataset
-    var populatePeriods = function() {
-        var periods = dhis2.period.generator.generateReversedPeriods($scope.dataset.periodType, 0);
-        periods = dhis2.period.generator.filterOpenPeriods($scope.dataset.periodType, periods, 0);
-        $scope.periods = periods;
-    }
-
-    //Populate organisationUnits according to dataset
-    var populateOrgUnits = function() {
-        $scope.organisationUnits = $orderBy($scope.dataset.organisationUnits, function(organisationUnit) {
-            return organisationUnit.displayName.trim();
-        });
-    }
-
-    //Populate attributes according to dataset
-    var populateAttributes = function() {
-        dhis2.de.currentCategories = dhis2.de.getCategories(dhis2.de.currentDataSetId);
-        $scope.currentCategories = dhis2.de.currentCategories;
-    };
-
-    //Save current selection config
-    var saveCurrentParams = function() {
-        var params = {
-            datasetId: $scope.dataset.id,
-            periodId: $scope.period.iso,
-            organisationUnitId: $scope.organisationUnit.id,
-            categoryCombo: dhis2.de.dataSets[$scope.dataset.id].categoryCombo
-        };
-
-        return params;
-    }
-
-    //DataSet selected
+    /**
+     * DataSet selected
+     */
     $scope.datasetSelected = function() {
         //Inits model
         clearSelection();
@@ -135,7 +46,9 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         populateOrgUnits();
     };
 
-    //Returns true|false according to selection of attributes is complete or not
+    /**
+     * Returns true|false according to selection of attributes is complete or not 
+     */
     $scope.isInputSelected = function() {
         if (
             $scope.organisationUnit &&
@@ -148,17 +61,43 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         return false;
     };
 
-    //A category (attribute) has been selected
+    /**
+     * A category (attribute) has been selected
+     */
     $scope.categorySelected = function() {
+        //Check if every attribute has been selected
         $scope.isInputSelected();
+        //Reload categoryComboOptions ids array
+        $scope.targetAttributeParams = loadTargetAttributeParams();
     };
 
-    //Cancel current selection
+    /**
+     * Datavalues are ready to be move when:
+     *  - data is loaded
+     *  - Every input has been selected
+     *  - There is no blank category
+     */
+    $scope.readyToMove = function() {
+        return $scope.dataLoaded && $scope.isInputSelected() && $scope.targetAttributeParams !== null;
+    };
+
+    /**
+     * Cancel current selection 
+     */
     $scope.cancel = function() {
         init();
     };
 
-    //Load formdata
+    /**
+     * Closes alert row
+     */
+    $scope.closeAlert = function() {
+        $scope.showFeedback = false;
+    };
+
+    /**
+     * Load formdata 
+     */
     $scope.loadForm = function() {
         $scope.loading = true;
         $scope.dataLoaded = false;
@@ -176,22 +115,9 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
             });
     };
 
-    //Load data values into table
-    $rootScope.$on('formLoaded', function() {
-        LoadFormValues($scope.dataset.id, $scope.period.iso, $scope.organisationUnit.id).success(function(data) {
-            $scope.loading = false;
-            $scope.currentFormData = data;
-            $scope.dataLoaded = true;
-
-            //dataentry: form.js
-            insertDataValues(data);
-            //Set readonly to table inputs
-            $('.entryfield').attr('readonly', 'readonly');
-            $('table').addClass("table table-striped");
-        });
-    });
-
-    //Move form data into new selection (organisationUnit, period, attributes combination)
+    /**
+     * Move form data into new selection (organisationUnit, period, attributes combination)
+     */
     $scope.moveFormData = function() {
 
         //Show spinner while moving data
@@ -208,7 +134,179 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         findCategoryComboOption();
     };
 
-    //Removes current dataValues from the dataset
+    /**
+     * Inits model
+     */
+    var init = function() {
+        $scope.loading = false;
+        $scope.datasets = [];
+        $scope.dataset = null;
+        clearSelection();
+        loadDhisData();
+        populateDataSets();
+    };
+
+    /**
+     * Clears model stuff
+     */
+    var clearSelection = function() {
+        $scope.periods = [];
+        $scope.organisationUnits = [];
+        $scope.currentCategories = [];
+        $scope.currentForm = null;
+        $scope.dataLoaded = false;
+        $scope.originalParams = {};
+        $scope.showFeedback = false;
+        $scope.targetAttributeParams = [];
+
+        dhis2.de.currentDataSetId = null;
+        dhis2.de.currentOrganisationUnitId = null;
+        dhis2.de.currentCategories = [];
+    }
+
+    /**
+     * Loads metadata into dhis2 global var
+     */
+    var loadMetaData = function(metaData) {
+        dhis2.de.emptyOrganisationUnits = metaData.emptyOrganisationUnits;
+        dhis2.de.significantZeros = metaData.significantZeros;
+        dhis2.de.dataElements = metaData.dataElements;
+        dhis2.de.indicatorFormulas = metaData.indicatorFormulas;
+        dhis2.de.dataSets = metaData.dataSets;
+        dhis2.de.optionSets = metaData.optionSets;
+        dhis2.de.defaultCategoryCombo = metaData.defaultCategoryCombo;
+        dhis2.de.categoryCombos = metaData.categoryCombos;
+        dhis2.de.categories = metaData.categories;
+    };
+
+    /**
+     * Loads metadataAssociations into dhis2 global var
+     */
+    var loadMetaDataAssociations = function(metaDataAssociations) {
+        dhis2.de.dataSetAssociationSets = metaDataAssociations.dataSetAssociationSets;
+        dhis2.de.organisationUnitAssociationSetMap = metaDataAssociations.organisationUnitAssociationSetMap;
+    };
+
+    /**
+     * Triggers metadata
+     */
+    var loadDhisData = function() {
+        $q.all([MetaData.query().$promise, MetaDataAssociations.query().$promise])
+            .then(function(result) {
+                //Require to insert select values into forms
+                DAO.store.open();
+
+                //Load metadata info
+                loadMetaData(result[0]);
+                loadMetaDataAssociations(result[1]);
+            });
+    };
+
+    /**
+     * Populate datasets
+     */
+    var populateDataSets = function() {
+        $scope.datasets = Datasets.query();
+    };
+
+    /**
+     * Populate periods according to dataset
+     */
+    var populatePeriods = function() {
+        var periods = dhis2.period.generator.generateReversedPeriods($scope.dataset.periodType, 0);
+        periods = dhis2.period.generator.filterOpenPeriods($scope.dataset.periodType, periods, 0);
+        $scope.periods = periods;
+    }
+
+    /**
+     * Populate organisationUnits according to dataset
+     */
+    var populateOrgUnits = function() {
+        $scope.organisationUnits = $orderBy($scope.dataset.organisationUnits, function(organisationUnit) {
+            return organisationUnit.displayName.trim();
+        });
+    }
+
+    /**
+     * Populate attributes according to dataset 
+     */
+    var populateAttributes = function() {
+        dhis2.de.currentCategories = dhis2.de.getCategories(dhis2.de.currentDataSetId);
+        $scope.currentCategories = dhis2.de.currentCategories;
+    };
+
+    /**
+     * Save current selection config
+     */
+    var saveCurrentParams = function() {
+        var params = {
+            datasetId: $scope.dataset.id,
+            periodId: $scope.period.iso,
+            organisationUnitId: $scope.organisationUnit.id,
+            categoryCombo: dhis2.de.dataSets[$scope.dataset.id].categoryCombo
+        };
+
+        return params;
+    };
+
+
+    /**
+     * Load datavalues into table
+     */
+    var formLoaded = function() {
+        LoadFormValues($scope.dataset.id, $scope.period.iso, $scope.organisationUnit.id).success(function(data) {
+            $scope.loading = false;
+            $scope.currentFormData = data;
+            $scope.dataLoaded = true;
+
+            //Enable selects and tabs
+            dhis2.de.insertOptionSets();
+            if (dhis2.de.dataSets[$scope.dataset.id].renderAsTabs) {
+                $("#tabs").tabs();
+            }
+            
+            //dataentry: form.js
+            insertDataValues(data);
+            
+            //Beatify form
+            beautifyForm();
+        });
+    };
+
+    /**
+     * Beautifies l&f of the form:
+     *  -Readonly inputs
+     *  -Bootstrap look
+     */
+    var beautifyForm = function() {
+        $(".entryoptionset").select2("enable", false);
+        $('.entryfield').attr('readonly', 'readonly');
+        $(".entrytrueonly").attr("disabled", true);
+        $('table').addClass("table table-striped");
+    };
+
+    /**
+     * Returns current attributes ids values or NULL if there is something left without value
+     */
+    var loadTargetAttributeParams = function() {
+        var arrayIds = $("select[id^='category-']").map(function(i, el) {
+            return $(el).val();
+        });
+
+        var filteredArray = [];
+        for (var i = 0; i < arrayIds.length; i++) {
+            if (!arrayIds[i]) {
+                return null;
+            } else {
+                filteredArray.push(arrayIds[i]);
+            }
+        }
+        return filteredArray;
+    }
+
+    /**
+     * Removes current dataValues from the dataset
+     */
     var removeDataValues = function() {
         //Precondition
         if (!$scope.currentFormData || !$scope.currentFormData.dataValues) {
@@ -217,7 +315,6 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
 
         //Delete each datavalue 
         angular.forEach($scope.currentFormData.dataValues, function(value) {
-            console.log("Removing", value);
             var dataValueTokens = value.id.split("-");
             var dataElementId = dataValueTokens[0];
             var categoryOptionCombo = dataValueTokens[1];
@@ -230,22 +327,20 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         });
     };
 
-    //Resolves current attributes combination from CategoryCombos endpoint
+    /**
+     * Resolves current attributes combination from CategoryCombos endpoint
+     */
     var findCategoryComboOption = function() {
         //Load target combination
-        var targetAttributeParams = $("select[id^='category-']").map(function(i, el) {
-            return $(el).val();
-        });
-
         var categoryCombo = $scope.targetParams.categoryCombo;
         CategoryCombos.get({ id: categoryCombo }, function(data) {
             var categoryOptionCombos = data.categoryOptionCombos;
             var categoryOptionComboId = null;
-            //No attributes -> nothing to search
-            if (targetAttributeParams.length == 0) {
+            //No attributes -> default combination
+            if (!$scope.targetAttributeParams || $scope.targetAttributeParams.length == 0) {
                 categoryOptionComboId = categoryOptionCombos[0].id;
             } else {
-                categoryOptionComboId = findCategoryOptionComboId(targetAttributeParams, categoryOptionCombos);
+                categoryOptionComboId = findCategoryOptionComboId($scope.targetAttributeParams, categoryOptionCombos);
             }
 
             //Found -> send event (now we're ready to post new values)
@@ -253,10 +348,10 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         });
     };
 
-    //On new categoryOptionCombo found -> post new values
-    $rootScope.$on('categoryOptionComboFound', function(event, categoryOptionComboId) {
-        console.log("categoryOptionComboFound", categoryOptionComboId);
-
+    /**
+     *  On new categoryOptionCombo found -> post new values 
+     */
+    var categoryOptionComboFound = function(event, categoryOptionComboId) {
         var dataValues = buildDataValues();
         var dataValueSet = new DataValueSets(
             {
@@ -268,14 +363,16 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
             }
         );
 
-        dataValueSet.$save(function(){
-            $scope.showFeedback=true;
-            $scope.loading=false;
-            $scope.dataLoaded = true;
+        dataValueSet.$save(function() {
+            $scope.showFeedback = true;
+            $scope.loading = false;
+            $scope.dataLoaded = false;
         });
-    });
+    };
 
-    //Builds an array of datavalues to post into a new dataset
+    /**
+     * Builds an array of datavalues to post into a new dataset 
+     */
     var buildDataValues = function() {
         //Precondition
         if (!$scope.currentFormData || !$scope.currentFormData.dataValues) {
@@ -298,7 +395,9 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
     }
 
 
-    //Finds the categoryOptionCombo ID for the current combination to attributes
+    /**
+     * Finds the categoryOptionCombo ID for the current combination to attributes
+     */
     var findCategoryOptionComboId = function(currentAttributes, categoryOptionCombos) {
 
         var attributesNeeded = currentAttributes.length;
@@ -325,5 +424,10 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         return null;
     };
 
+    //Set event listeners
+    $rootScope.$on('formLoaded', formLoaded);
+    $rootScope.$on('categoryOptionComboFound', categoryOptionComboFound);
+
+    //Init model
     init();
 });
