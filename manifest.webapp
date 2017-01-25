@@ -17,7 +17,7 @@
 	"default_locale":"en",
 	"activities": {
 	  "dhis": {
-	  "href": "http://127.0.0.1:8080/"
+	  "href": "*"
 		}
 	}
 }

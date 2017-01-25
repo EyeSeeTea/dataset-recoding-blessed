@@ -213,7 +213,9 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
      * Populate periods according to dataset
      */
     var populatePeriods = function() {
-        var periods = dhis2.period.generator.generateReversedPeriods($scope.dataset.periodType, 0);
+    	//dhis2.de.currentPeriodOffset--;
+    	//console.log(dhis2.de.currentPeriodOffset);
+        var periods = dhis2.period.generator.generateReversedPeriods($scope.dataset.periodType, -1);
         periods = dhis2.period.generator.filterOpenPeriods($scope.dataset.periodType, periods, 0);
         $scope.periods = periods;
     }
