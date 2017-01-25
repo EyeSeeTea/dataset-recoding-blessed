@@ -41,29 +41,6 @@ Dhis2Api.factory("commonvariable", function() {
 
 Dhis2Api.constant("urlApi", urlApi);
 
-Dhis2Api.factory("userAuthorization", ['$resource', 'commonvariable', function($resource, commonvariable) {
-    return $resource(commonvariable.url + "me/authorization/:menuoption",
-        {
-            menuoption: '@menuoption'
-        },
-        { get: { method: "GET", transformResponse: function(response) { return { status: response }; } } });
-
-}]);
-
-Dhis2Api.factory("TreeOrganisationunit", ['$resource', 'commonvariable', function($resource, commonvariable) {
-    return $resource(commonvariable.url + "organisationUnits/:uid",
-        {
-            uid: '@uid',
-            fields: 'name,id,level,children[name,id,level]'
-        },
-        { get: { method: "GET" } });
-}]);
-
-Dhis2Api.factory("ProgramsList", ['$resource', 'commonvariable', function($resource, commonvariable) {
-    return $resource(commonvariable.url + "programs.json",
-        {},
-        { get: { method: "GET" } });
-}]);
 
 Dhis2Api.factory("Datasets", function($resource, commonvariable) {
     return $resource(commonvariable.url + "dataSets/:id.json", {},
