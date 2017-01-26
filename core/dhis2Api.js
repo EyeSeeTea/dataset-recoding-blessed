@@ -130,7 +130,9 @@ Dhis2Api.factory("DataValues", function($resource, commonvariable) {
         de:"@de",
         pe:"@pe",
         ou:"@ou",
-        co:"@co"
+        co:"@co",
+        cc:"@cc",
+        cp:"@cp"
     });
 });
 
