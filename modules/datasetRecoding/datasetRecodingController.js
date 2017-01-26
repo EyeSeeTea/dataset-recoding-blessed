@@ -106,7 +106,8 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
 
         //Reset originalParams
         $scope.originalParams = saveCurrentParams();
-
+        $scope.originalAttributes = $scope.targetAttributeParams;
+        
         //Load form structure
         LoadForm($scope.dataset.id)
             .success(function(data) {
@@ -324,7 +325,9 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
                 de: dataElementId,
                 pe: $scope.originalParams.periodId,
                 ou: $scope.originalParams.organisationUnitId,
-                co: categoryOptionCombo
+                co: categoryOptionCombo,
+                cc: $scope.originalParams.categoryCombo,
+                cp: $scope.originalAttributes.join(";")
             });
         });
     };
