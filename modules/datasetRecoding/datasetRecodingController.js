@@ -115,7 +115,24 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
                 $rootScope.$broadcast('formLoaded');
             });
     };
+    
+    /**
+     * Decrease year offset
+     */
+    $scope.prevYear =  function() {
+    	dhis2.de.currentPeriodOffset--;    	
+    	populatePeriods();
+    }
 
+    /**
+     * Increase year offset
+     */
+    $scope.nextYear =  function() {
+    	dhis2.de.currentPeriodOffset++;
+    	populatePeriods();
+    }
+    
+    
     /**
      * Move form data into new selection (organisationUnit, period, attributes combination)
      */
@@ -214,9 +231,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
      * Populate periods according to dataset
      */
     var populatePeriods = function() {
-    	//dhis2.de.currentPeriodOffset--;
-    	//console.log(dhis2.de.currentPeriodOffset);
-        var periods = dhis2.period.generator.generateReversedPeriods($scope.dataset.periodType, -1);
+        var periods = dhis2.period.generator.generateReversedPeriods($scope.dataset.periodType, dhis2.de.currentPeriodOffset);
         periods = dhis2.period.generator.filterOpenPeriods($scope.dataset.periodType, periods, 0);
         $scope.periods = periods;
     }
