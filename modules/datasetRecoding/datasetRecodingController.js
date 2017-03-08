@@ -1,9 +1,9 @@
 /* 
    Copyright (c) 2016.
  
-   This file is part of Project Manager.
+   This file is part of DataSet Recoding.
  
-   Project Manager is free software: you can redistribute it and/or modify
+   DataSet Recoding is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
  
    You should have received a copy of the GNU General Public License
-   along with Project Manager.  If not, see <http://www.gnu.org/licenses/>. */
+   along with DataSet Recoding.  If not, see <http://www.gnu.org/licenses/>. */
 
 dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScope, $scope, $filter, $q, Datasets, MetaData, MetaDataAssociations, LoadForm, LoadFormValues, DataValues, CategoryCombos, DataValueSets) {
 
@@ -106,7 +106,8 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
 
         //Reset originalParams
         $scope.originalParams = saveCurrentParams();
-
+        $scope.originalAttributes = $scope.targetAttributeParams;
+        
         //Load form structure
         LoadForm($scope.dataset.id)
             .success(function(data) {
@@ -114,7 +115,24 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
                 $rootScope.$broadcast('formLoaded');
             });
     };
+    
+    /**
+     * Decrease year offset
+     */
+    $scope.prevYear =  function() {
+    	dhis2.de.currentPeriodOffset--;    	
+    	populatePeriods();
+    }
 
+    /**
+     * Increase year offset
+     */
+    $scope.nextYear =  function() {
+    	dhis2.de.currentPeriodOffset++;
+    	populatePeriods();
+    }
+    
+    
     /**
      * Move form data into new selection (organisationUnit, period, attributes combination)
      */
@@ -213,7 +231,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
      * Populate periods according to dataset
      */
     var populatePeriods = function() {
-        var periods = dhis2.period.generator.generateReversedPeriods($scope.dataset.periodType, 0);
+        var periods = dhis2.period.generator.generateReversedPeriods($scope.dataset.periodType, dhis2.de.currentPeriodOffset);
         periods = dhis2.period.generator.filterOpenPeriods($scope.dataset.periodType, periods, 0);
         $scope.periods = periods;
     }
@@ -322,7 +340,9 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
                 de: dataElementId,
                 pe: $scope.originalParams.periodId,
                 ou: $scope.originalParams.organisationUnitId,
-                co: categoryOptionCombo
+                co: categoryOptionCombo,
+                cc: $scope.originalParams.categoryCombo,
+                cp: $scope.originalAttributes.join(";")
             });
         });
     };

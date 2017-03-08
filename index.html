@@ -91,16 +91,12 @@
     <script src="directives/progressBar/progressBarController.js" type="text/javascript"></script>
     <script src="directives/messages/messagesController.js" type="text/javascript"></script>
     <script src="directives/modaldialogbox/modaldialogboxController.js" type="text/javascript"></script>
-    <script src="directives/treeorganisationunit/organisationUnitTreeController.js" type="text/javascript"></script>
     <script src="directives/loader/loaderController.js" type="text/javascript"></script>
 </head>
 
 <body>
     <d2-header></d2-header>
     <script>
-        window.dhis2 = window.dhis2 || {};
-        dhis2.settings = dhis2.settings || {};
-        dhis2.settings.baseUrl = '';
 
         dhis2.period.format = "yyyy-mm-dd";
         dhis2.period.calendar = $.calendars.instance('gregorian');

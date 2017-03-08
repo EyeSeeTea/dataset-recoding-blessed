@@ -6,8 +6,27 @@
  * */
 var Dhis2Api = angular.module("Dhis2Api", ['ngResource']);
 
-var urlApi = "http://127.0.0.1:8080/api/";
-var urlBase = "http://127.0.0.1:8080/";
+var urlBase = window.location.href.split('/api/apps/')[0];
+var urlApi = urlBase + '/api/';
+
+
+//Auxiliary variable to parse the url
+var urlAuxLink = document.createElement('a');
+urlAuxLink.href = urlBase;
+
+//Delete initial and final slash
+var auxBaseUrl = urlAuxLink.pathname;
+if (auxBaseUrl.startsWith("/")) auxBaseUrl = auxBaseUrl.substring(1);
+if (auxBaseUrl.endsWith("/")) auxBaseUrl = auxBaseUrl.substring(0, auxBaseUrl.length - 2);
+
+//Dhis related variables
+window.dhis2 = window.dhis2 || {};
+dhis2.settings = dhis2.settings || {};
+dhis2.settings.baseUrl = auxBaseUrl;
+
+
+//var urlApi = "http://127.0.0.1:8080/api/";
+//var urlBase = "http://127.0.0.1:8080/";
 
 //Create all common variables of the apps 
 Dhis2Api.factory("commonvariable", function() {
@@ -22,32 +41,9 @@ Dhis2Api.factory("commonvariable", function() {
 
 Dhis2Api.constant("urlApi", urlApi);
 
-Dhis2Api.factory("userAuthorization", ['$resource', 'commonvariable', function($resource, commonvariable) {
-    return $resource(commonvariable.url + "me/authorization/:menuoption",
-        {
-            menuoption: '@menuoption'
-        },
-        { get: { method: "GET", transformResponse: function(response) { return { status: response }; } } });
 
-}]);
-
-Dhis2Api.factory("TreeOrganisationunit", ['$resource', 'commonvariable', function($resource, commonvariable) {
-    return $resource(commonvariable.url + "organisationUnits/:uid",
-        {
-            uid: '@uid',
-            fields: 'name,id,level,children[name,id,level]'
-        },
-        { get: { method: "GET" } });
-}]);
-
-Dhis2Api.factory("ProgramsList", ['$resource', 'commonvariable', function($resource, commonvariable) {
-    return $resource(commonvariable.url + "programs.json",
-        {},
-        { get: { method: "GET" } });
-}]);
-
-Dhis2Api.factory("Datasets", function($resource) {
-    return $resource("/api/24/dataSets/:id.json", {},
+Dhis2Api.factory("Datasets", function($resource, commonvariable) {
+    return $resource(commonvariable.url + "dataSets/:id.json", {},
         {
             query: {
                 method: "GET",
@@ -129,24 +125,26 @@ Dhis2Api.factory('LoadFormValues', function($http) {
     }
 });
 
-Dhis2Api.factory("DataValues", function($resource) {
-    return $resource("/api/24/dataValues.json", {
+Dhis2Api.factory("DataValues", function($resource, commonvariable) {
+    return $resource(commonvariable.url + "dataValues.json", {
         de:"@de",
         pe:"@pe",
         ou:"@ou",
-        co:"@co"
+        co:"@co",
+        cc:"@cc",
+        cp:"@cp"
     });
 });
 
 
-Dhis2Api.factory("CategoryCombos", function($resource) {
-    return $resource("/api/24/categoryCombos/:id.json", {
+Dhis2Api.factory("CategoryCombos", function($resource, commonvariable) {
+    return $resource(commonvariable.url + "categoryCombos/:id.json", {
         fields:"categoryOptionCombos[id,categoryOptions]"
     });
 });
 
-Dhis2Api.factory("DataValueSets", function($resource) {
-    return $resource("/api/24/dataValueSets");
+Dhis2Api.factory("DataValueSets", function($resource, commonvariable) {
+    return $resource(commonvariable.url + "dataValueSets");
 });
 
 

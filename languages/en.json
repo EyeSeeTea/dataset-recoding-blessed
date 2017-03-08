@@ -12,5 +12,7 @@
     "SELECT_OPTION": "[Select option]",
     "GET_DATA": "Get data",
     "CANCEL": "Cancel",
-    "UPDATE": "Update"    
+    "UPDATE": "Update",
+    "PREV_YEAR": "Prev year",
+    "NEXT_YEAR": "Next year" 
 }

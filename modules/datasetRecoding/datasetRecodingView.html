@@ -1,9 +1,9 @@
 <!--   
    Copyright (c) 2015.
  
-   This file is part of Project Manager.
+   This file is part of DataSet Recoding.
  
-   Project Manager is free software: you can redistribute it and/or modify
+   DataSet Recoding is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
  
    You should have received a copy of the GNU General Public License
-   along with Project Manager.  If not, see <http://www.gnu.org/licenses/>. -->
+   along with DataSet Recoding.  If not, see <http://www.gnu.org/licenses/>. -->
 
 <h2>{{'DATASET_RECODING_TITLE' | translate}}</h2>
 
@@ -49,12 +49,16 @@
     <!-- select period unit -->
     <div class="form-group">
         <label for="period" class="col-sm-2 control-label">{{ 'PERIOD' | translate }}</label>
-        <div class="col-sm-10">
+        <div class="col-sm-6">
             <select class="form-control" ng-model="period" ng-options="item as item.name for item in periods">
                 <option value="">{{ 'PERIOD_OPTION' | translate }}</option>
             </select>
             <!-- required to use dhis2 front api + bootstrap-->
             <input type="hidden" name="selectedPeriodId" id="selectedPeriodId" />
+        </div>
+        <div class="col-sm-4">
+            <button class="btn btn-default" ng-click="prevYear()">{{ 'PREV_YEAR' | translate }}</button>
+            <button class="btn btn-default" ng-click="nextYear()">{{ 'NEXT_YEAR' | translate }}</button>
         </div>
     </div>
 
