@@ -4,12 +4,12 @@
 	"description":"Dataset Recoding",
 	"launch_path":"index.html",
 	"icons":{"16":null,
-	"48":"img/eyeseetea_logo.png",
+	"48":"img/nrc_squared_logo.png",
 	"128":null
 	},
 	"developer":{
 	"url":"",
-	"name":"Adrian Quintana, Ivan Arrizabalaga",
+	"name":"Adrian Quintana, Ivan Arrizabalaga, Jose Garcia",
 	"company":"EyeSeeTea Ltd.",
 	"email":"hello@eyeseetea.com"
 	},
@@ -17,7 +17,7 @@
 	"default_locale":"en",
 	"activities": {
 	  "dhis": {
-	  "href": "http://127.0.0.1:8080/"
+	  "href": "*"
 		}
 	}
 }
