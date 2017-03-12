@@ -1,0 +1,23 @@
+<style type="text/css">
+    
+div#loaderDiv
+{
+  color: #1c425c;
+  font-size: 14px;
+  margin-bottom: 15px;
+  height: 230px;
+  text-align: center;
+  border-radius: 3px;
+}
+
+</style>
+
+<div id="loaderDiv" class="row" ng-show="loading">
+    <div class="col-md-10 col-md-offset-2">
+  
+    <br><br><br>    
+    <img src="/images/ajax-loader-circle.gif">    
+    <br><br><br>       
+    <p>{{ 'PLEASE_WAIT' | translate }}</p>    
+  </div>
+</div>
