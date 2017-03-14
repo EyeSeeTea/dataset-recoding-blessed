@@ -22,7 +22,7 @@ if (auxBaseUrl.endsWith("/")) auxBaseUrl = auxBaseUrl.substring(0, auxBaseUrl.le
 //Dhis related variables
 window.dhis2 = window.dhis2 || {};
 dhis2.settings = dhis2.settings || {};
-dhis2.settings.baseUrl = auxBaseUrl;
+dhis2.settings.baseUrl = auxBaseUrl === "" ? "../.." : auxBaseUrl;
 
 
 //var urlApi = "http://127.0.0.1:8080/api/";
