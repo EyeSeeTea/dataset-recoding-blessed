@@ -213,14 +213,15 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
             var dataElementId = dataValueTokens[0];
             var categoryOptionCombo = dataValueTokens[1];
             var de = $scope.formRead.getDataElement();
-            DataValues.delete({
+            var datavalue = {
                 de: dataElementId,
-                pe: de.period.id,
+                pe: de.period.iso,
                 ou: de.organisationUnit.id,
                 co: categoryOptionCombo,
-                cc: de.categoryCombo,
+                cc: de.attributes.length > 0 ? de.categoryCombo : null,
                 cp: de.attributes.join(";")
-            });
+            }
+            DataValues.delete(_.pick(datavalue, _.identity));
         });
     };
 

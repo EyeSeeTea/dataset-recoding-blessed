@@ -95,7 +95,6 @@ Dhis2Api.directive('datavaluesForm', function() {
 			 * Populate periods according to dataset
 			 */
 			var populatePeriods = function() {
-					//$scope.currentPeriodOffset
 					var periods = dhis2.period.generator.generateReversedPeriods($scope.dataset.periodType, $scope.currentPeriodOffset);
 					periods = dhis2.period.generator.filterOpenPeriods($scope.dataset.periodType, periods, 0);
 					$scope.periods = periods;
