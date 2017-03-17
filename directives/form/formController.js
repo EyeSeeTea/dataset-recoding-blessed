@@ -24,7 +24,7 @@ Dhis2Api.directive('datavaluesForm', function() {
 					organisationUnit: $scope.organisationUnit,
 					categoryCombo: $scope.dataset && dhis2.de.dataSets[$scope.dataset.id] ? 
 						dhis2.de.dataSets[$scope.dataset.id].categoryCombo : null,
-					attributes: loadTargetAttributeParams(),
+					attributes: $scope.attributes,
 					currentPeriodOffset: $scope.currentPeriodOffset
 				};
 			};
@@ -39,7 +39,7 @@ Dhis2Api.directive('datavaluesForm', function() {
 					.detect(function(ou) { return ou.id == de.organisationUnit.id; });
 				$scope.period = _($scope.periods)
 					.detect(function(pe) { return pe.id == de.period.id; });
-				$scope.attributes = de.attributes;
+				$scope.attributes = _.clone(de.attributes);
 			};
 			
 			$scope.isReadRole = function() {
@@ -154,42 +154,6 @@ Dhis2Api.directive('datavaluesForm', function() {
 
 					//Populate orgunits
 					populateOrgUnits();
-			};
-
-		  /**
-		   * A category (attribute) has been selected
-		   */
-		  $scope.categorySelected = function() {
-		      //Check if every attribute has been selected
-		      $scope.isInputSelected();
-		      //Reload categoryComboOptions ids array
-		      $scope.targetAttributeParams = loadTargetAttributeParams();
-		  };
-			
-		  /**
-		   * Returns current attributes ids values or NULL if there is something left without value
-		   */
-		  var loadTargetAttributeParams = function() {
-		      var arrayIds = $("select[id^='category-']").map(function(i, el) {
-		          return $(el).val();
-		      });
-
-		      var filteredArray = [];
-		      for (var i = 0; i < arrayIds.length; i++) {
-		          if (!arrayIds[i]) {
-		              return null;
-		          } else {
-		              filteredArray.push(arrayIds[i]);
-		          }
-		      }
-		      return filteredArray;
-		  }
-			
-			/* Return the HTML ID for the category selector. dhis-web-dataentry uses this
-		     value. Since we have two forms (read and update), we need ot make sure
-		     only the selectors in the currently used form have ID */
-			$scope.getCategoryId = function(category) {
-				return $scope.enabled ? ("category-" + category.id) : null;
 			};
 		}
 	};

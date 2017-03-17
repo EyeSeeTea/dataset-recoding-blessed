@@ -47,12 +47,9 @@
     <div class="form-group" ng-repeat="category in categories">
         <label for="{{category.id}}" class="col-sm-2 control-label">{{category.name}}</label>
         <div class="col-sm-10">
-            <select id="{{ getCategoryId(category) }}" ng-model="attributes[$index]" class="form-control" ng-change="categorySelected()">
+            <select ng-model="attributes[$index]" class="form-control" 
+                    ng-options="option.id as option.name for option in category.options">
                 <option value="">{{ 'SELECT_OPTION' | translate }}</option>
-                <option ng-repeat="option in category.options" 
-                        value="{{option.id}}">
-                    {{option.name}}
-                </option>
             </select>
         </div>
     </div>

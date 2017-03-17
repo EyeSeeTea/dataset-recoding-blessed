@@ -64,6 +64,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
      */
     $scope.loadForm = function() {
         $scope.loading = true;
+        $scope.showFeedback = false;
         $scope.dataLoaded = false;
         $scope.currentFormParams = null;
         $scope.currentFormData = "";
