@@ -65,7 +65,10 @@ Dhis2Api.directive('datavaluesForm', function() {
 			var clearSelection = function() {
 					$scope.periods = [];
 					$scope.organisationUnits = [];
+					$scope.organisationUnit = null;
+					$scope.period = null;
 					$scope.categories = [];
+					$scope.attributes = [];
 			};
 		
 			/**
