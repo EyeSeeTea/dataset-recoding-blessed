@@ -102,15 +102,15 @@ Dhis2Api.factory('LoadForm', function($http) {
 });
 
 Dhis2Api.factory('LoadFormValues', function($http) {
-    return function(dataSetId, periodId, organisationUnitId) {
+    return function(de) {
         var params = {
-            periodId: periodId,
-            dataSetId: dataSetId,
-            organisationUnitId: organisationUnitId,
+            periodId: de.period.iso,
+            dataSetId: de.dataset.id,
+            organisationUnitId: de.organisationUnit.id,
             multiOrganisationUnit: false
         };
-        var cc = dhis2.de.getCurrentCategoryCombo();
-        var cp = dhis2.de.getCurrentCategoryOptionsQueryValue();
+        var cc = de.categoryCombo;
+        var cp = de.attributes.join(";");
 
         if (cc && cp) {
             params.cc = cc;

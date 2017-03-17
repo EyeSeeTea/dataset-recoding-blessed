@@ -45,6 +45,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
      */
     $scope.cancel = function() {
         $scope.formRead.clear();
+        clearSelection();
     };
     
     $scope.cancelUpdate = function() {
@@ -64,33 +65,48 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
     $scope.loadForm = function() {
         $scope.loading = true;
         $scope.dataLoaded = false;
+        $scope.currentFormParams = null;
         $scope.currentFormData = "";
         $scope.currentForm = "";
         
-        var originalParams = $scope.formRead.getDataElement();
+        var de = $scope.formRead.getDataElement();
 
         //Load form structure
-        LoadForm(originalParams.dataset.id)
+        LoadForm(de.dataset.id)
             .success(function(data) {
                 $scope.currentForm = data;
                 $rootScope.$broadcast('formLoaded');
             });
     };
+
+    $scope.areSourceTargetParamsEqual = function() {
+        var targetParams = $scope.formUpdate.getDataElement();
+        return _.isEqual(targetParams, $scope.currentFormParams);
+    }
     
     /**
      * Move form data into new selection (organisationUnit, period, attributes combination)
      */
     $scope.moveFormData = function() {
+        if ($scope.areSourceTargetParamsEqual()) {
+            alert($translate("SAME_DATA"));
+            return;
+        }
+        
+        var targetParams = $scope.formUpdate.getDataElement();
+        LoadFormValues(targetParams).success(function(data) {
+            if (_.isEmpty(data.dataValues) || confirm($translate("EXISTING_DATA"))) {
+                //Show spinner while moving data
+                $scope.loading = true;
+                $scope.dataLoaded = false;
 
-        //Show spinner while moving data
-        $scope.loading = true;
-        $scope.dataLoaded = false;
+                //Remove data values from previous dataset combination
+                removeDataValues();
 
-        //Remove data values from previous dataset combination
-        removeDataValues();
-
-        //Find categoryComboOption uid & post new datavalues
-        findCategoryComboOption();
+                //Find categoryComboOption uid & post new datavalues
+                findCategoryComboOption();
+            }
+        });
     };
 
     /**
@@ -167,9 +183,10 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
     var formLoaded = function() {
         var de = $scope.formRead.getDataElement();
         
-        LoadFormValues(de.dataset.id, de.period.iso, de.organisationUnit.id).success(function(data) {
+        LoadFormValues(de).success(function(data) {
             $scope.loading = false;
             $scope.currentFormData = data;
+            $scope.currentFormParams = de;
             $scope.dataLoaded = true;
 
             //Enable selects and tabs
@@ -212,7 +229,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
             var dataValueTokens = value.id.split("-");
             var dataElementId = dataValueTokens[0];
             var categoryOptionCombo = dataValueTokens[1];
-            var de = $scope.formRead.getDataElement();
+            var de = $scope.currentFormParams;
             var datavalue = {
                 de: dataElementId,
                 pe: de.period.iso,
@@ -266,6 +283,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         dataValueSet.$save(function() {
             $scope.showFeedback = true;
             $scope.loading = false;
+            $scope.currentForm = null;
             $scope.dataLoaded = false;
             $scope.state = STATES.read;
         });

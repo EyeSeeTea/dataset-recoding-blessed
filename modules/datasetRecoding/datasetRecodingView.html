@@ -25,7 +25,7 @@
 
 <form class="form-horizontal">
     <fieldset ng-disabled="updateFormVisible()">
-        <datavalues-form accessor="formRead" enabled="!updateFormVisible()">
+        <datavalues-form accessor="formRead" role="read" enabled="!updateFormVisible()">
         </datavalues-form>
 
         <!-- button row -->
@@ -33,21 +33,21 @@
             <div class="col-sm-offset-2 col-sm-10">
                 <button class="btn btn-default" ng-disabled="!formRead.isInputSelected()" ng-click="loadForm()">{{ 'GET_DATA' | translate }}</button>
                 <button ng-click="cancel()" class="btn btn-default">{{ 'CANCEL' | translate }}</button>
-                <button class="btn btn-primary" ng-show="formRead.isInputSelected()" ng-click="startRecode()">{{ 'RECODE' | translate }}</button>
+                <button class="btn btn-primary" ng-show="formRead.isInputSelected()" ng-click="startRecode()">{{ 'RECODE' | translate }} ↓</button>
             </div>
         </div>
     </fieldset>
     
     <div ng-show="updateFormVisible()">
         <img src="img/arrow-down.png" ng-style="{'display': 'block', 'margin': '0 auto', 'width': '80px', height: '60px'}"></img>
-        <datavalues-form accessor="formUpdate" enabled="updateFormVisible()">
+        <datavalues-form accessor="formUpdate" role="update" enabled="updateFormVisible()">
         </datavalues-form>
 
         <!-- button row -->
         <div class="form-group">
             <div class="col-sm-offset-2 col-sm-10">
                 <button class="btn btn-primary" ng-disabled="!readyToMove()" ng-click="moveFormData()">{{ 'UPDATE' | translate }}</button>
-                <button ng-click="cancelUpdate()" class="btn btn-default">{{ 'CANCEL' | translate }}</button>
+                <button ng-click="cancelUpdate()" class="btn btn-default">{{ 'CANCEL' | translate }} ↑</button>
             </div>
         </div>
     </div>

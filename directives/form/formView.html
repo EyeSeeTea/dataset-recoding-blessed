@@ -1,7 +1,7 @@
 <h1>{{ title }}</h1>
 <div ng-hidden="!visible">
     <!-- select datasets-->
-    <div class="form-group">
+    <div class="form-group" ng-show="isReadRole()">
         <label for="dataset" class="col-sm-2 control-label">{{ 'DATASET' | translate }}</label>
         <div class="col-sm-10">
             <select class="form-control" 
@@ -32,7 +32,7 @@
             <select class="form-control" 
                     ng-model="period" 
                     ng-options="item as item.name for item in periods">
-                <option value="">{{ 'PERIOD_OPTION' | translate }} - {{ currentPeriodYear() }}</option>
+                <option value="">{{ 'PERIOD_OPTION' | translate }}</option>
             </select>
             <!-- required to use dhis2 front api + bootstrap-->
             <input type="hidden" name="selectedPeriodId" />
@@ -47,11 +47,10 @@
     <div class="form-group" ng-repeat="category in categories">
         <label for="{{category.id}}" class="col-sm-2 control-label">{{category.name}}</label>
         <div class="col-sm-10">
-            <select id="{{ getCategoryId(category) }}" ng-model="categoryOption" class="form-control" ng-change="categorySelected()">
+            <select id="{{ getCategoryId(category) }}" ng-model="attributes[$index]" class="form-control" ng-change="categorySelected()">
                 <option value="">{{ 'SELECT_OPTION' | translate }}</option>
                 <option ng-repeat="option in category.options" 
-                        value="{{option.id}}"
-                        ng-selected="attributes[$parent.$index] == option.id">
+                        value="{{option.id}}">
                     {{option.name}}
                 </option>
             </select>

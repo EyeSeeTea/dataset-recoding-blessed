@@ -1,7 +1,7 @@
 Dhis2Api.directive('datavaluesForm', function() {
 	return {
 		restrict: 'E',
-		scope: {accessor: "=", enabled: "="},
+		scope: {accessor: "=", role: "@", enabled: "="},
 		templateUrl: 'directives/form/formView.html',
 		link: function(scope, element, attrs) {
 			// Public interface
@@ -24,16 +24,15 @@ Dhis2Api.directive('datavaluesForm', function() {
 					organisationUnit: $scope.organisationUnit,
 					categoryCombo: $scope.dataset && dhis2.de.dataSets[$scope.dataset.id] ? 
 						dhis2.de.dataSets[$scope.dataset.id].categoryCombo : null,
-					attributes: loadTargetAttributeParams()
+					attributes: loadTargetAttributeParams(),
+					currentPeriodOffset: $scope.currentPeriodOffset
 				};
 			};
-
+			
 			$scope.setDataElement = function(de) {
 				$scope.dataset = _($scope.datasets)
 					.detect(function(ds) { return ds.id == de.dataset.id; });
-				var currentYear = new Date().getFullYear();
-				var deYear = parseInt(de.period.startDate.split("-"));
-				$scope.currentPeriodOffset = deYear - currentYear;
+				$scope.currentPeriodOffset = de.currentPeriodOffset;
 				$scope.datasetSelected();
 				
 				$scope.organisationUnit = _($scope.organisationUnits)
@@ -42,6 +41,10 @@ Dhis2Api.directive('datavaluesForm', function() {
 					.detect(function(pe) { return pe.id == de.period.id; });
 				$scope.attributes = de.attributes;
 			};
+			
+			$scope.isReadRole = function() {
+				return $scope.role == "read";
+			}
 					
 			/**
 			 * Inits model
@@ -50,6 +53,7 @@ Dhis2Api.directive('datavaluesForm', function() {
 					$scope.currentPeriodOffset = 0;
 					$scope.datasets = [];
 					$scope.attributes = [];
+					$scope.categories = [];
 					$scope.dataset = null;
 					clearSelection();
 					populateDataSets();
@@ -62,18 +66,14 @@ Dhis2Api.directive('datavaluesForm', function() {
 					$scope.periods = [];
 					$scope.organisationUnits = [];
 					$scope.categories = [];
-				
-		      dhis2.de.currentDataSetId = null;
-		      dhis2.de.currentOrganisationUnitId = null;
-		      dhis2.de.currentCategories = [];
 			};
 		
 			/**
 			 * Populate attributes according to dataset 
 			 */
 			var populateAttributes = function() {
-					dhis2.de.currentCategories = dhis2.de.getCategories(dhis2.de.currentDataSetId);
-					$scope.categories = dhis2.de.currentCategories;
+					$scope.categories = $scope.dataset ? 
+						(dhis2.de.getCategories($scope.dataset.id) || []) : [];
 			};
 
 			/**
@@ -81,14 +81,6 @@ Dhis2Api.directive('datavaluesForm', function() {
 			 */
 			var populateDataSets = function() {
 					$scope.datasets = Datasets.query();
-					
-					// TEST
-					$scope.datasets.$promise.then(function() {
-						$scope.dataset = $scope.datasets[0];
-						$scope.datasetSelected()
-						$scope.organisationUnit = $scope.organisationUnits[0];
-						$scope.period = $scope.periods[0];
-					});
 			};
 
 			/**
@@ -100,11 +92,6 @@ Dhis2Api.directive('datavaluesForm', function() {
 					$scope.periods = periods;
 			};
 			
-			$scope.currentPeriodYear = function() {
-				var currentYear = new Date().getFullYear(); 				
-				return currentYear + $scope.currentPeriodOffset;
-			};
-
 			/**
 			 * Decrease year offset
 			 */
@@ -134,16 +121,18 @@ Dhis2Api.directive('datavaluesForm', function() {
 			 * Returns true|false according to selection of attributes is complete or not 
 			 */
 			$scope.isInputSelected = function() {
-					if (
+					return (
 							$scope.organisationUnit &&
 							$scope.dataset &&
 							$scope.period &&
-							dhis2.de.categoriesSelected()) {
-							return true;
-					}
-
-					return false;
+							$scope.allAttributesSelected()
+					);
 			};
+			
+			$scope.allAttributesSelected = function() {
+					return $scope.attributes.length == $scope.categories.length &&
+				         _($scope.attributes).all(_.identity);
+			}
 		
 			/**
 			 * DataSet selected
@@ -156,9 +145,6 @@ Dhis2Api.directive('datavaluesForm', function() {
 					if (!$scope.dataset) {
 							return;
 					}
-
-					//Set
-					dhis2.de.currentDataSetId = $scope.dataset.id;
 
 					//Populate attributes				
 					populateAttributes();

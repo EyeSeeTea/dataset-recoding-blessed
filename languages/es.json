@@ -3,6 +3,8 @@
   "DATASET_RECODING_TITLE":"Recodificación de Datasets",
   "PLEASE_WAIT": "Por favor espere mientras el sistema procesa datos",
   "DATA_MOVED":"Los valores se han movido correctamente",
+  "SAME_DATA": "Los metadatos de origen y destino son idénticos",
+  "EXISTING_DATA": "Ya existén valores para estos metadatos, ¿está seguro de que quiere sobreescribirlos?",
   "DATASET": "Dataset",
   "DATASET_OPTION": "[Seleccione dataset]",
   "PERIOD": "Periodo",
