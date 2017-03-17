@@ -1,0 +1,19 @@
+{
+  "TITLE_APP":"Recodificación de Datasets",
+  "DATASET_RECODING_TITLE":"Recodificación de Datasets",
+  "PLEASE_WAIT": "Por favor espere mientras el sistema procesa datos",
+  "DATA_MOVED":"Los valores se han movido correctamente",
+  "DATASET": "Dataset",
+  "DATASET_OPTION": "[Seleccione dataset]",
+  "PERIOD": "Periodo",
+  "PERIOD_OPTION": "[Seleccione periodo]",
+  "ORGANISATION_UNIT":"Unidad organizativa",
+  "ORGANISATION_UNIT_OPTION":"[Seleccione unidad organizativa]",
+  "SELECT_OPTION": "[Seleccione opción]",
+  "GET_DATA": "Leer datos",
+  "CANCEL": "Cancelar",
+  "RECODE": "Recodificar",
+  "UPDATE": "Actualizar",
+  "PREV_YEAR": "Año anterior",
+  "NEXT_YEAR": "Año siguiente" 
+}

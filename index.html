@@ -70,6 +70,9 @@
     <script type="text/javascript" src="../../../dhis-web-commons/select2/select2.min.js"></script>
     <link type="text/css" rel="stylesheet" href="../../../dhis-web-commons/select2/select2.css" />
     
+    <script type="text/javascript" src="../../../dhis-web-core-resource/jquery.calendars.package-1.2.1/jquery.calendars-es.js"></script>
+    <script type="text/javascript" src="../../../dhis-web-core-resource/jquery.calendars.package-1.2.1/jquery.calendars-fr.js"></script>
+    <script type="text/javascript" src="../../../dhis-web-core-resource/jquery.calendars.package-1.2.1/jquery.calendars-ar.js"></script>
     
     <!-- Required to load dataentry stuff -->
     <script type="text/javascript" src="../../../dhis-web-commons/javascripts/dhis2/dhis2.storage.js"></script>
@@ -101,20 +104,11 @@
 
 <body>
     <d2-header></d2-header>
-    <script>
-
-        dhis2.period.format = "yyyy-mm-dd";
-        dhis2.period.calendar = $.calendars.instance('gregorian');
-        dhis2.period.generator = new dhis2.period.PeriodGenerator( dhis2.period.calendar, dhis2.period.format );     
-        dhis2.period.picker = new dhis2.period.DatePicker( dhis2.period.calendar, dhis2.period.format );
-        i18n_select_option = "";
-    </script>
     <div class="row">
         <div class="col-md-9">
             <div ng-view></div>
         </div>
     </div>
-
 </body>
 
 </html>
