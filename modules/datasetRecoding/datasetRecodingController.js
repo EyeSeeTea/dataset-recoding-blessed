@@ -16,11 +16,11 @@
    You should have received a copy of the GNU General Public License
    along with DataSet Recoding.  If not, see <http://www.gnu.org/licenses/>. */
 
-dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScope, $scope, $filter, $q, Datasets, MetaData, MetaDataAssociations, LoadForm, LoadFormValues, DataValues, CategoryCombos, DataValueSets) {
+dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScope, $scope, $filter, $translate, $q, Datasets, MetaData, MetaDataAssociations, LoadForm, LoadFormValues, DataValues, CategoryCombos, DataValueSets) {
 
     var STATES = {read: "read", update: "update"};
 
-    var $translate = $filter('translate');
+    var translate = $filter('translate');
     var $orderBy = $filter('orderBy');
 
     /* Accessors for children directives */
@@ -90,13 +90,13 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
      */
     $scope.moveFormData = function() {
         if ($scope.areSourceTargetParamsEqual()) {
-            alert($translate("SAME_DATA"));
+            alert(translate("SAME_DATA"));
             return;
         }
         
         var targetParams = $scope.formUpdate.getDataElement();
         LoadFormValues(targetParams).success(function(data) {
-            if (_.isEmpty(data.dataValues) || confirm($translate("EXISTING_DATA"))) {
+            if (_.isEmpty(data.dataValues) || confirm(translate("EXISTING_DATA"))) {
                 //Show spinner while moving data
                 $scope.loading = true;
                 $scope.dataLoaded = false;
@@ -344,10 +344,22 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         return null;
     };
 
+    var configureDhis2Calendars = function(locale) {
+        dhis2.period.format = "yyyy-mm-dd";
+        dhis2.period.calendar = $.calendars.instance('gregorian', locale);
+        dhis2.period.generator = 
+            new dhis2.period.PeriodGenerator(dhis2.period.calendar, dhis2.period.format);     
+        dhis2.period.picker = 
+            new dhis2.period.DatePicker(dhis2.period.calendar, dhis2.period.format);
+        i18n_select_option = "";
+    };
+
     //Set event listeners
     $rootScope.$on('formLoaded', formLoaded);
     $rootScope.$on('categoryOptionComboFound', categoryOptionComboFound);
 
+    configureDhis2Calendars($translate.use());
+    
     //Init model
     init();
 });
