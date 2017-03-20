@@ -6,6 +6,7 @@ Dhis2Api.directive('datavaluesForm', function() {
 		link: function(scope, element, attrs) {
 			// Public interface
 			$.extend(scope.accessor, {
+				initialized: true,
 				isInputSelected: scope.isInputSelected,
 				getDataElement: scope.getDataElement,
 				setDataElement: scope.setDataElement,

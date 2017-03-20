@@ -58,6 +58,15 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
     $scope.closeAlert = function() {
         $scope.showFeedback = false;
     };
+    
+    $scope.isRecodeVisible = function() {
+        return (
+            $scope.formRead.initialized &&
+            $scope.formRead.isInputSelected() &&
+            $scope.currentFormParams && 
+            _.isEqual($scope.formRead.getDataElement(), $scope.currentFormParams)
+        ;
+    };
 
     /**
      * Load formdata 

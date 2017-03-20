@@ -33,7 +33,7 @@
             <div class="col-sm-offset-2 col-sm-10">
                 <button class="btn btn-default" ng-disabled="!formRead.isInputSelected()" ng-click="loadForm()">{{ 'GET_DATA' | translate }}</button>
                 <button ng-click="cancel()" class="btn btn-default">{{ 'CANCEL' | translate }}</button>
-                <button class="btn btn-primary" ng-show="formRead.isInputSelected()" ng-click="startRecode()">{{ 'RECODE' | translate }} ↓</button>
+                <button class="btn btn-primary" ng-show="isRecodeVisible()" ng-click="startRecode()">{{ 'RECODE' | translate }} ↓</button>
             </div>
         </div>
     </fieldset>
