@@ -59,13 +59,13 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         $scope.showFeedback = false;
     };
     
-    $scope.isRecodeVisible = function() {
+    $scope.selectorsMatchFormData = function() {
         return (
             $scope.formRead.initialized &&
             $scope.formRead.isInputSelected() &&
             $scope.currentFormParams && 
             _.isEqual($scope.formRead.getDataElement(), $scope.currentFormParams)
-        ;
+        );
     };
 
     /**
