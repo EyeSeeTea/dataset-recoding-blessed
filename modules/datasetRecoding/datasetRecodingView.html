@@ -16,8 +16,6 @@
    You should have received a copy of the GNU General Public License
    along with DataSet Recoding.  If not, see <http://www.gnu.org/licenses/>. -->
 
-<h2>{{'DATASET_RECODING_TITLE' | translate}}</h2>
-
 <div class="alert alert-warning alert-dismissible" ng-show="showFeedback">
     <button type="button" class="close" aria-label="Close" ng-click="closeAlert()"><span aria-hidden="true">&times;</span></button>
     {{ 'DATA_MOVED' | translate }}
@@ -39,7 +37,7 @@
     </fieldset>
     
     <div ng-show="updateFormVisible()">
-        <img src="img/arrow-down.png" ng-style="{'display': 'block', 'margin': '0 auto', 'width': '80px', height: '60px'}"></img>
+        <i class="fa fa-arrow-down" style="margin-left: 50%; font-size: 28px;"></i>
         <datavalues-form accessor="formUpdate" role="update" enabled="updateFormVisible()">
         </datavalues-form>
 
@@ -58,8 +56,8 @@
 <d2-loader></d2-loader>
 
 <!-- Data container -->
-<div id="contentDiv" class="row" ng-show="selectorsMatchFormData()">
-    <div class="col-md-10 col-md-offset-2 ">
+<div id="contentDiv" class="row" ng-show="selectorsMatchFormData()" style="margin-top:30px;">
+    <div class="col-md-12">
         <ng-bind-html ng-bind-html="currentForm | html ">
         </ng-bind-html>
     </div>
