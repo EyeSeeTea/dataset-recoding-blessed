@@ -24,64 +24,33 @@
 </div>
 
 <form class="form-horizontal">
+    <fieldset ng-disabled="updateFormVisible()">
+        <datavalues-form accessor="formRead" role="read" enabled="!updateFormVisible()">
+        </datavalues-form>
 
-    <!-- select datasets-->
-    <div class="form-group">
-        <label for="dataset" class="col-sm-2 control-label">{{ 'DATASET' | translate }}</label>
-        <div class="col-sm-10">
-            <select id="selectedDataSetId" class="form-control" ng-model="dataset" ng-options="item as item.displayName for item in datasets"
-            ng-change="datasetSelected()">
-                <option value="">{{ 'DATASET_OPTION' | translate }}</option>
-            </select>
+        <!-- button row -->
+        <div class="form-group" ng-hide="updateFormVisible()">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button class="btn btn-default" ng-disabled="!formRead.isInputSelected()" ng-click="loadForm()">{{ 'GET_DATA' | translate }}</button>
+                <button ng-click="cancel()" class="btn btn-default">{{ 'CANCEL' | translate }}</button>
+                <button class="btn btn-primary" ng-show="selectorsMatchFormData()" ng-click="startRecode()">{{ 'RECODE' | translate }} ↓</button>
+            </div>
+        </div>
+    </fieldset>
+    
+    <div ng-show="updateFormVisible()">
+        <img src="img/arrow-down.png" ng-style="{'display': 'block', 'margin': '0 auto', 'width': '80px', height: '60px'}"></img>
+        <datavalues-form accessor="formUpdate" role="update" enabled="updateFormVisible()">
+        </datavalues-form>
+
+        <!-- button row -->
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button class="btn btn-primary" ng-disabled="!readyToMove()" ng-click="moveFormData()">{{ 'UPDATE' | translate }}</button>
+                <button ng-click="cancelUpdate()" class="btn btn-default">{{ 'CANCEL' | translate }} ↑</button>
+            </div>
         </div>
     </div>
-
-    <!-- select organisation unit-->
-    <div class="form-group" ng-show="dataset">
-        <label for="period" class="col-sm-2 control-label">{{ 'ORGANISATION_UNIT' | translate }}</label>
-        <div class="col-sm-10">
-            <select class="form-control" ng-model="organisationUnit" ng-options="item as item.displayName for item in organisationUnits">
-                <option value="">{{ 'ORGANISATION_UNIT_OPTION' | translate }}</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- select period unit -->
-    <div class="form-group">
-        <label for="period" class="col-sm-2 control-label">{{ 'PERIOD' | translate }}</label>
-        <div class="col-sm-6">
-            <select class="form-control" ng-model="period" ng-options="item as item.name for item in periods">
-                <option value="">{{ 'PERIOD_OPTION' | translate }}</option>
-            </select>
-            <!-- required to use dhis2 front api + bootstrap-->
-            <input type="hidden" name="selectedPeriodId" id="selectedPeriodId" />
-        </div>
-        <div class="col-sm-4">
-            <button class="btn btn-default" ng-click="prevYear()">{{ 'PREV_YEAR' | translate }}</button>
-            <button class="btn btn-default" ng-click="nextYear()">{{ 'NEXT_YEAR' | translate }}</button>
-        </div>
-    </div>
-
-    <!-- Container for dynamic attributes -->
-    <div class="form-group" ng-repeat="category in currentCategories">
-        <label for="{{category.id}}" class="col-sm-2 control-label">{{category.name}}</label>
-        <div class="col-sm-10">
-            <select id="category-{{category.id}}" ng-model="categoryOption" class="form-control" ng-change="categorySelected()">
-                <option value="">{{ 'SELECT_OPTION' | translate }}</option>
-                <option ng-repeat="option in category.options" value="{{option.id}}">{{option.name}}</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- button row -->
-    <div class="form-group">
-        <div class="col-sm-offset-2 col-sm-10">
-            <button class="btn btn-default" ng-disabled="!isInputSelected()" ng-click="loadForm()">{{ 'GET_DATA' | translate }}</button>
-            <button ng-click="cancel()" class="btn btn-default">{{ 'CANCEL' | translate }}</button>
-            <button class="btn btn-primary" ng-disabled="!readyToMove()" ng-click="moveFormData()">{{ 'UPDATE' | translate }}</button>
-        </div>
-    </div>
-
 </form>
 
 <!-- default loader -->
@@ -89,7 +58,7 @@
 <d2-loader></d2-loader>
 
 <!-- Data container -->
-<div id=" contentDiv " class="row ">
+<div id="contentDiv" class="row" ng-show="selectorsMatchFormData()">
     <div class="col-md-10 col-md-offset-2 ">
         <ng-bind-html ng-bind-html="currentForm | html ">
         </ng-bind-html>

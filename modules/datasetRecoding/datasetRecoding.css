@@ -1,0 +1,5 @@
+/* Hide (non-working) controls [filter] and [show/hide sections] for custom entries */
+
+.input-group.col-xs-6 { 
+  display: none !important; 
+}

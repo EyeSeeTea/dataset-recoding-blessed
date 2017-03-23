@@ -19,9 +19,12 @@ dhisServerUtilsConfig.config(function($translateProvider, urlApi) {
     });
 
     $translateProvider.registerAvailableLanguageKeys(
-        ['en'],
+        ['en', 'es', 'fr', 'ar'],
         {
             'en*': 'en',
+            'es*': 'es',
+            'fr*': 'fr',
+            'ar*': 'ar',
             '*': 'en' // must be last!
         }
     );

@@ -1,23 +1,24 @@
 {
-	"version":"0.0.1",
-	"name":"Dataset Recoding",
-	"description":"Dataset Recoding",
-	"launch_path":"index.html",
-	"icons":{"16":null,
-	"48":"img/nrc_squared_logo.png",
-	"128":null
-	},
-	"developer":{
-	"url":"",
-	"name":"Adrian Quintana, Ivan Arrizabalaga, Jose Garcia",
-	"company":"EyeSeeTea Ltd.",
-	"email":"hello@eyeseetea.com"
-	},
-	"installs_allowed_from":null,
-	"default_locale":"en",
-	"activities": {
-	  "dhis": {
-	  "href": "*"
-		}
-	}
+  "version": "0.0.2",
+  "name": "Dataset Recoding",
+  "description": "Recode metadata for existing datasets",
+  "launch_path": "index.html",
+  "icons": {
+    "16": null,
+    "48": "img/nrc_squared_logo.png",
+    "128": null
+  },
+  "developer": {
+    "url": "https://github.com/eyeseetea/dataset-recoding",
+    "name": "EyeSeeTea Team",
+    "company": "EyeSeeTea Ltd.",
+    "email": "hello@eyeseetea.com"
+  },
+  "installs_allowed_from": null,
+  "default_locale": "en",
+  "activities": {
+    "dhis": {
+    "href": "*"
+    }
+  }
 }
