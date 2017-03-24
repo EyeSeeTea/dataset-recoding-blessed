@@ -116,10 +116,8 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
     };
     
     $scope.startRecode = function() {
-        $scope.loadForm();
         $scope.state = STATES.update;
-        var de = $scope.formRead.getDataElement();
-        $scope.formUpdate.setDataElement(de);
+        $scope.formUpdate.setDataElement($scope.currentFormParams);
     }
     
     /**
@@ -127,6 +125,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
      */
     var clearSelection = function() {
         $scope.currentForm = null;
+        $scope.currentFormParams = null;
         $scope.dataLoaded = false;
         $scope.showFeedback = false;
     }
@@ -276,6 +275,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
             $scope.showFeedback = true;
             $scope.loading = false;
             $scope.currentForm = null;
+            $scope.currentFormParams = null;
             $scope.dataLoaded = false;
             $scope.state = STATES.read;
         });
