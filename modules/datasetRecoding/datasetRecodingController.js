@@ -1,21 +1,3 @@
-/* 
-   Copyright (c) 2016.
- 
-   This file is part of DataSet Recoding.
- 
-   DataSet Recoding is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
- 
-   Project Manager is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
- 
-   You should have received a copy of the GNU General Public License
-   along with DataSet Recoding.  If not, see <http://www.gnu.org/licenses/>. */
-
 dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScope, $scope, $filter, $translate, $q, Datasets, MetaData, MetaDataAssociations, LoadForm, LoadFormValues, DataValues, CategoryCombos, DataValueSets) {
 
     var STATES = {read: "read", update: "update"};
@@ -134,10 +116,8 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
     };
     
     $scope.startRecode = function() {
-        $scope.loadForm();
         $scope.state = STATES.update;
-        var de = $scope.formRead.getDataElement();
-        $scope.formUpdate.setDataElement(de);
+        $scope.formUpdate.setDataElement($scope.currentFormParams);
     }
     
     /**
@@ -145,6 +125,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
      */
     var clearSelection = function() {
         $scope.currentForm = null;
+        $scope.currentFormParams = null;
         $scope.dataLoaded = false;
         $scope.showFeedback = false;
     }
@@ -294,6 +275,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
             $scope.showFeedback = true;
             $scope.loading = false;
             $scope.currentForm = null;
+            $scope.currentFormParams = null;
             $scope.dataLoaded = false;
             $scope.state = STATES.read;
         });
