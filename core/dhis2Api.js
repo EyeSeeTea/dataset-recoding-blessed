@@ -156,11 +156,18 @@ Dhis2Api.factory("DataStore", function($resource, urlApi) {
     
     return {
         get: function(key, defaultValue) {
-            return resource.get({key: key}).$promise
-                .then(
-                    function(res) { return res.toJSON(); },
-                    function(err) { return err.status = 404 ? defaultValue : undefined; }
-                );
+            return resource.get({key: key}).$promise.
+                then(function(res) { return res.toJSON(); });
+        },
+        
+        getWithDefault: function(key, defaultValue) {
+            return this.get(key).catch(function(error) {
+                if (error.status == 404) {
+                    return defaultValue;
+                } else {
+                    throw error;
+                }
+            });
         },
         
         save: function(key, data) {
@@ -168,18 +175,27 @@ Dhis2Api.factory("DataStore", function($resource, urlApi) {
                 if (error.status == 404) {
                     return resource.save({key: key}, data).$promise;
                 } else {
-                    throw new Error("Cannot save data store item: " + url + " - " + key);
+                    throw error;
                 }
             });
         }
     };
 });
 
+/* Logging factory: Save entries (any object) in a circular buffer 
+   with a configurable maximum buckets and a maximum entries per bucket.
+   
+   dataStore: 
+    - dataset-recoding/loggin-state -> {"index": CURRENT_BUCKET_INDEX}
+    - dataset-recoding/loggin-bucket-INDEX -> {...}
+*/ 
 Dhis2Api.factory('Logging', function($resource, DataStore) {
-    return function(options = {}) {
-        var maxBucketEntries = options.maxBucketEntries || 1e6;
-        var maxBuckets = options.maxBuckets || 1e6;
-        var logging = this;
+    return function(options) {
+        var maxBucketEntries, maxBuckets, logging;
+        options = options || {};
+        maxBucketEntries = this.maxBucketEntries = options.maxBucketEntries || 100;
+        maxBuckets = this.maxBuckets = options.maxBuckets || 1e5;
+        logging = this;
 
         var getBucketKey = function(index) {
             return "logging-bucket-" + index.toString();
@@ -196,8 +212,13 @@ Dhis2Api.factory('Logging', function($resource, DataStore) {
         };
 
         var getCurrentIndex = function() {
-            return DataStore.get("logging-state", {index: 0})
-                .then(function(state) { return state.index; });
+            return DataStore.getWithDefault("logging-state", null).then(function(state) {
+                if (state) {
+                    return state.index;
+                } else {
+                    return setCurrentIndex(0).then(function() { return 0; });
+                }
+            });
         };
 
         var setCurrentIndex = function(newIndex) {
@@ -206,7 +227,7 @@ Dhis2Api.factory('Logging', function($resource, DataStore) {
             
         var getData = function() {
             return getCurrentIndex().then(function(index) {
-                return DataStore.get(getBucketKey(index), {entries: []}).then(function(res) { 
+                return DataStore.getWithDefault(getBucketKey(index), {entries: []}).then(function(res) { 
                     return {index: index, entries: res.entries};
                 }); 
             });
@@ -218,7 +239,8 @@ Dhis2Api.factory('Logging', function($resource, DataStore) {
             return getCurrentIndex().then(function(index) {
                 var bucketKey = getSafeBucketIndex(index, offset);
                 if (bucketKey) {
-                    return DataStore.get(bucketKey, {entries: []}).then(function(r) { return r.entries; });
+                    return DataStore.getWithDefault(bucketKey, {entries: []})
+                        .then(function(r) { return r.entries; });
                 } else {
                     return null;
                 }
@@ -238,9 +260,11 @@ Dhis2Api.factory('Logging', function($resource, DataStore) {
                     newIndex = (index + 1) % maxBuckets;
                     newEntries = [newEntry];
                 }
-                return DataStore.save(getBucketKey(newIndex), {entries: newEntries}).then(function(res) { 
-                    return newIndex != index ? setCurrentIndex(newIndex) : res; 
-                });
+                return DataStore
+                    .save(getBucketKey(newIndex), {entries: newEntries})
+                    .then(function(res) { 
+                        return newIndex != index ? setCurrentIndex(newIndex) : res 
+                    }); 
             });
         };
     };

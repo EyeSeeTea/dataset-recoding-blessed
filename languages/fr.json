@@ -18,5 +18,10 @@
   "UPDATE": "Update",
   "PREV_YEAR": "Prev year",
   "NEXT_YEAR": "Next year",
-  "LOGS": "Logs" 
+  "LOGS_TITLE": "Logs", 
+  "LOGS_UPDATED": "Updated",
+  "LOGS_USER": "User",
+  "LOGS_DATE": "Date",
+  "LOGS_LOAD_MORE": "Load more...",
+  "LOGS_NO_MORE_ENTRIES": "There are no more log entries"
 }

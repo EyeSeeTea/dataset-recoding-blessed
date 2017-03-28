@@ -1,6 +1,7 @@
-dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScope, $scope, $filter, $translate, $q, Datasets, MetaData, MetaDataAssociations, LoadForm, LoadFormValues, DataValues, CategoryCombos, DataValueSets, userInfo, Logging) {
-    console.log("userInfo", userInfo);
-
+dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScope, 
+        $scope, $filter, $translate, $q, Datasets, MetaData, 
+        MetaDataAssociations, LoadForm, LoadFormValues, DataValues, 
+        CategoryCombos, DataValueSets, userInfo, Logging) {
     var STATES = {read: "read", update: "update"};
 
     var translate = $filter('translate');
@@ -10,6 +11,9 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
      
     $scope.formRead = {}; 
     $scope.formUpdate = {};
+    
+    $scope.equals = angular.equals;
+    $scope.moment = moment;
     
     /**
      * Datavalues are ready to be move when:
@@ -33,6 +37,10 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
     
     $scope.cancelUpdate = function() {
         $scope.state = STATES.read;
+    }
+    
+    $scope.logsVisible = function() {
+        return $scope.logs.areVisible && $scope.state === STATES.read;
     }
 
     /**
@@ -106,12 +114,19 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
      * Inits model
      */
     var init = function() {
-        $scope.areLogsVisible = false;
+        // Max DbSize = EntrySize * maxBucketEntries * maxBuckets (entry size ~ 500 bytes)   
+        $scope.logs = {
+            //logger: new Logging({maxBuckets: (1e9 / 500 / 100), maxBucketEntries: 100}),
+            logger: new Logging({maxBuckets: 3, maxBucketEntries: 2}),
+            entries: null,
+            areVisible: false,
+            offset: 0,
+            limitReached: false
+        };
         $scope.loading = false;
         loadDhisData();
         clearSelection();
         $scope.state = STATES.read;
-        $scope.logging = new Logging({maxBuckets: 3, maxBucketEntries: 2});
     };
 
     $scope.updateFormVisible = function() {
@@ -180,6 +195,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         LoadFormValues(de).success(function(data) {
             $scope.loading = false;
             $scope.currentFormData = data;
+            // _.clone performs a shadow clone, clone attributes explicitly
             $scope.currentFormParams = _.extend(_.clone(de), {attributes: _.clone(de.attributes)});
             $scope.dataLoaded = true;
 
@@ -260,31 +276,34 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         });
     };
     
-    var buildLoggingEntry = function(dataElement) {
-        console.log("dataElement", dataElement);
-        var de = dataElement;
-	    var attributes = _
-	        .chain(de.categories)
-	        .zip(de.attributes)
-	        .map(function(pair) {
-	            return {
-	                category: _(pair[0]).pick("name", "id"),
-	                attribute: _(pair[1]).pick("name", "id")
-	             };
-	        });
-        
+    var buildLoggingEntry = function(sourceDataElement, targetDataElement) {
+        var buildDataElement = function(de) {
+	        var attributes = _
+	            .chain(de.categories)
+	            .zip(de.attributes)
+	            .map(function(pair) {
+	                return {
+	                    category: _(pair[0]).pick("name", "id"),
+	                    attribute: _(pair[1]).pick("name", "id")
+	                 };
+	            });
+
+            return {
+                dataset: _(de.dataset).pick("displayName", "id"),
+                organisationUnit: de.organisationUnit,
+                period: {displayName: de.period.name, code: de.period.iso},
+                attributes: attributes.value()
+            };
+        };
+
         return {
             date: new Date(),
             user: {
                 displayName: userInfo.displayName, 
                 username: userInfo.userCredentials.username
             },
-            info: {
-                dataset: _(de.dataset).pick("displayName", "id"),
-                organisationUnit: de.organisationUnit,
-                period: {displayName: de.period.name, code: de.period.iso},
-                attibutes: attributes
-            }
+            source: buildDataElement(sourceDataElement),
+            target: buildDataElement(targetDataElement)
         };
     }
 
@@ -305,9 +324,9 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         );
 
         dataValueSet.$save(function() {
-            // TODO $scope.logging.addEntry()
-            var entry = buildLoggingEntry(targetParams);
-            console.log("entry", entry);
+            var entry = buildLoggingEntry($scope.currentFormParams, targetParams);
+            $scope.logs.logger.addEntry(entry);
+            $scope.logs.entries = [entry].concat($scope.logs.entries || []); 
             $scope.showFeedback = true;
             $scope.loading = false;
             $scope.currentForm = null;
@@ -382,9 +401,23 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
     };
     
     $scope.toggleLogs = function() {
-        $scope.areLogsVisible = !$scope.areLogsVisible;
+        $scope.logs.areVisible = !$scope.logs.areVisible;
+        if ($scope.logs.areVisible && !$scope.logs.entries) {
+            $scope.loadMoreLogs();
+        }
     };
-    
+
+    $scope.loadMoreLogs = function() {
+        $scope.logs.logger.getEntries($scope.logs.offset).then(function(newEntries) {
+            if (newEntries && newEntries.length > 0) {
+                $scope.logs.offset += 1;
+                $scope.logs.entries = ($scope.logs.entries || []).concat(newEntries);
+            } else {
+                $scope.logs.limitReached = true;
+            }
+        });
+    };
+
     //Set event listeners
     $rootScope.$on('formLoaded', formLoaded);
     $rootScope.$on('categoryOptionComboFound', categoryOptionComboFound);

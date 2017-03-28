@@ -25,7 +25,7 @@ Dhis2Api.directive('datavaluesForm', function() {
 					organisationUnit: $scope.organisationUnit,
 					categoryCombo: $scope.dataset && dhis2.de.dataSets[$scope.dataset.id] ? 
 						dhis2.de.dataSets[$scope.dataset.id].categoryCombo : null,
-				    categories: $scope.categories,
+					categories: $scope.categories,
 					attributes: $scope.attributes,
 					currentPeriodOffset: $scope.currentPeriodOffset
 				};
