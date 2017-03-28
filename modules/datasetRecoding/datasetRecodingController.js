@@ -116,8 +116,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
     var init = function() {
         // Max DbSize = EntrySize * maxBucketEntries * maxBuckets (entry size ~ 500 bytes)   
         $scope.logs = {
-            //logger: new Logging({maxBuckets: (1e9 / 500 / 100), maxBucketEntries: 100}),
-            logger: new Logging({maxBuckets: 3, maxBucketEntries: 2}),
+            logger: new Logging({maxBuckets: (1e9 / 500 / 100), maxBucketEntries: 100}),
             entries: null,
             areVisible: false,
             offset: 0,
