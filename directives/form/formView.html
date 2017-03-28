@@ -48,7 +48,7 @@
         <label for="{{category.id}}" class="col-sm-2 control-label">{{category.name}}</label>
         <div class="col-sm-10">
             <select ng-model="attributes[$index]" class="form-control" 
-                    ng-options="option.id as option.name for option in category.options">
+                    ng-options="option as option.name for option in category.options">
                 <option value="">{{ 'SELECT_OPTION' | translate }}</option>
             </select>
         </div>
