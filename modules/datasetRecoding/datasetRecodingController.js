@@ -93,10 +93,6 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
             if (_.isEmpty(data.dataValues) || confirm(translate("EXISTING_DATA"))) {
                 //Show spinner while moving data
                 $scope.loading = true;
-                $scope.dataLoaded = false;
-
-                //Remove data values from previous dataset combination
-                removeDataValues();
 
                 //Find categoryComboOption uid & post new datavalues
                 findCategoryComboOption();
@@ -112,6 +108,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         loadDhisData();
         clearSelection();
         $scope.state = STATES.read;
+        $scope.updateErrors = null;
     };
 
     $scope.updateFormVisible = function() {
@@ -308,15 +305,26 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
             }
         );
 
-        dataValueSet.$save(function() {
-            var entry = buildLoggingEntry($scope.currentFormParams, targetParams);
-            $scope.logs.addEntry(entry);
-            $scope.showFeedback = true;
-            $scope.loading = false;
-            $scope.currentForm = null;
-            $scope.currentFormParams = null;
-            $scope.dataLoaded = false;
-            $scope.state = STATES.read;
+        dataValueSet.$save(function(res) {
+            if (res.status === "SUCCESS" && _.isEmpty(res.conflicts)) {
+                removeDataValues();
+                var entry = buildLoggingEntry($scope.currentFormParams, targetParams);
+                $scope.logs.addEntry(entry);
+                $scope.showFeedback = true;
+                $scope.dataLoaded = false;
+                $scope.loading = false;
+                $scope.currentForm = null;
+                $scope.currentFormParams = null;
+                $scope.dataLoaded = false;
+                $scope.state = STATES.read;
+                $scope.updateErrors = null;
+            } else {
+                var conflicts = _(res.conflicts).map(function(conflict) { 
+                    return "[" + conflict.object + "] "  + conflict.value; 
+                });
+                $scope.updateErrors = conflicts;
+                $scope.loading = false;
+            }
         });
     };
 

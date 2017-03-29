@@ -36,6 +36,11 @@
                 <button ng-click="cancelUpdate()" class="btn btn-default">{{ 'CANCEL' | translate }} ↑</button>
             </div>
         </div>
+        <div class="alert alert-warning alert-dismissible" ng-show="updateErrors">
+            <div ng-repeat="error in updateErrors track by $index">
+                {{ error }}
+            </div>
+        </div>        
     </div>
 </form>
 
