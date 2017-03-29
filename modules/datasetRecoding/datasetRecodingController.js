@@ -11,10 +11,8 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
      
     $scope.formRead = {}; 
     $scope.formUpdate = {};
-    
-    $scope.equals = angular.equals;
-    $scope.moment = moment;
-    
+    $scope.logs = {};
+
     /**
      * Datavalues are ready to be move when:
      *  - data is loaded
@@ -39,10 +37,6 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         $scope.state = STATES.read;
     }
     
-    $scope.logsVisible = function() {
-        return $scope.logs.areVisible && $scope.state === STATES.read;
-    }
-
     /**
      * Closes alert row
      */
@@ -114,14 +108,6 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
      * Inits model
      */
     var init = function() {
-        // Max DbSize = EntrySize * maxBucketEntries * maxBuckets (entry size ~ 500 bytes)   
-        $scope.logs = {
-            logger: new Logging({maxBuckets: (1e9 / 500 / 100), maxBucketEntries: 100}),
-            entries: null,
-            areVisible: false,
-            offset: 0,
-            limitReached: false
-        };
         $scope.loading = false;
         loadDhisData();
         clearSelection();
@@ -324,8 +310,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
 
         dataValueSet.$save(function() {
             var entry = buildLoggingEntry($scope.currentFormParams, targetParams);
-            $scope.logs.logger.addEntry(entry);
-            $scope.logs.entries = [entry].concat($scope.logs.entries || []); 
+            $scope.logs.addEntry(entry);
             $scope.showFeedback = true;
             $scope.loading = false;
             $scope.currentForm = null;
@@ -399,24 +384,6 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         i18n_select_option = "";
     };
     
-    $scope.toggleLogs = function() {
-        $scope.logs.areVisible = !$scope.logs.areVisible;
-        if ($scope.logs.areVisible && !$scope.logs.entries) {
-            $scope.loadMoreLogs();
-        }
-    };
-
-    $scope.loadMoreLogs = function() {
-        $scope.logs.logger.getEntries($scope.logs.offset).then(function(newEntries) {
-            if (newEntries && newEntries.length > 0) {
-                $scope.logs.offset += 1;
-                $scope.logs.entries = ($scope.logs.entries || []).concat(newEntries);
-            } else {
-                $scope.logs.limitReached = true;
-            }
-        });
-    };
-
     //Set event listeners
     $rootScope.$on('formLoaded', formLoaded);
     $rootScope.$on('categoryOptionComboFound', categoryOptionComboFound);

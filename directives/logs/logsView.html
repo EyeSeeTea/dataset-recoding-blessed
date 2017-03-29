@@ -1,0 +1,69 @@
+<div ng-show="isVisible()" class="well logs">
+    <ul class="list-group">
+        <li ng-repeat="entry in logs.entries" class="list-group-item">
+            <div>
+                <label>{{ 'LOGS_DATE' | translate }}:</label>
+                <span class="value">{{ moment(entry.date).format("YYYY-MM-DD hh:mma") }}</span>
+            </div>
+            <div>
+                <label>{{ 'LOGS_USER' | translate }}:</label>
+                <span class="value">{{ entry.user.displayName }} ({{ entry.user.username }})</span>
+            </div>
+            <div>
+                <label>{{ 'DATASET' | translate }}:</label>
+                <span class="value">
+                    {{ entry.source.dataset.displayName }}
+                    ({{ entry.source.dataset.id }})
+                </span>
+            </div>
+
+            <div>
+                <label>{{ 'ORGANISATION_UNIT' | translate }}:</label>
+                <span class="value">
+                    {{ entry.source.organisationUnit.displayName }}
+                    ({{ entry.source.organisationUnit.id }})
+                    <span ng-if="!equals(entry.source.organisationUnit, entry.target.organisationUnit)">
+                        <i class="fa fa-arrow-right"></i>
+                        {{ entry.target.organisationUnit.displayName }}
+                        ({{ entry.target.organisationUnit.id }})
+                        <span class="label label-success">{{ 'LOGS_UPDATED' | translate }}</span>
+                    </span>
+                </span>
+            </div>
+            <div>
+                <label>{{ 'PERIOD' | translate }}:</label>
+                <span class="value">
+                    {{ moment(entry.source.period.code, "YYYYMM").format("YYYY/MM") }}
+                    <span ng-if="!equals(entry.source.period, entry.target.period)">
+                        <i class="fa fa-arrow-right"></i>
+                        {{ moment(entry.target.period.code, "YYYYMM").format("YYYY/MM") }}
+                        <span class="label label-success">{{ 'LOGS_UPDATED' | translate }}</span>
+                    </span>
+                </span>
+            </div>
+
+            <div ng-repeat="attr in entry.source.attributes">
+                <div>
+                    <label>{{ attr.category.name }}:</label>
+                    <span class="value">
+                        {{ attr.attribute.name }}
+                        <span ng-if="!equals(attr.attribute, entry.target.attributes[$index].attribute)">
+                            <i class="fa fa-arrow-right"></i>
+                            {{ entry.target.attributes[$index].attribute.name }}
+                            <span class="label label-success">{{ 'LOGS_UPDATED' | translate }}</span>
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+    <div>
+        <a href="" ng-show="!logs.limitReached" ng-click="loadMoreLogs()">
+            {{ 'LOGS_LOAD_MORE' | translate }}
+        </a>
+        <div ng-show="logs.limitReached" class="alert alert-warning">
+            {{ 'LOGS_NO_MORE_ENTRIES' | translate }}
+        </div>
+    </div>
+</div>
