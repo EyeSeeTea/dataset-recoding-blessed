@@ -1,0 +1,56 @@
+<h1>{{ title }}</h1>
+<div ng-hidden="!visible">
+    <!-- select datasets-->
+    <div class="form-group" ng-show="isReadRole()" style="font-size:18px;margin-bottom:40px;">
+        <label for="dataset" class="col-sm-2 control-label">{{ 'DATASET' | translate }}</label>
+        <div class="col-sm-10">
+            <select class="form-control" 
+                    ng-model="dataset" 
+                    ng-options="item as item.displayName for item in datasets"
+                    ng-change="datasetSelected()">
+                <option value="">{{ 'DATASET_OPTION' | translate }}</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- select organisation unit-->
+    <div class="form-group" ng-show="dataset">
+        <label for="period" class="col-sm-2 control-label">{{ 'ORGANISATION_UNIT' | translate }}</label>
+        <div class="col-sm-10">
+            <select class="form-control" 
+                    ng-model="organisationUnit" 
+                    ng-options="item as item.displayName for item in organisationUnits">
+                <option value="">{{ 'ORGANISATION_UNIT_OPTION' | translate }}</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- select period unit -->
+    <div class="form-group" ng-show="dataset">
+        <label for="period" class="col-sm-2 control-label">{{ 'PERIOD' | translate }}</label>
+        <div class="col-sm-6">
+            <select class="form-control" 
+                    ng-model="period" 
+                    ng-options="item as item.name for item in periods">
+                <option value="">{{ 'PERIOD_OPTION' | translate }}</option>
+            </select>
+            <!-- required to use dhis2 front api + bootstrap-->
+            <input type="hidden" name="selectedPeriodId" />
+        </div>
+        <div class="col-sm-4">
+            <button class="btn btn-default" ng-click="prevYear()">{{ 'PREV_YEAR' | translate }}</button>
+            <button class="btn btn-default" ng-click="nextYear()">{{ 'NEXT_YEAR' | translate }}</button>
+        </div>
+    </div>
+
+    <!-- Container for dynamic attributes -->
+    <div class="form-group" ng-repeat="category in categories">
+        <label for="{{category.id}}" class="col-sm-2 control-label">{{category.name}}</label>
+        <div class="col-sm-10">
+            <select ng-model="attributes[$index]" class="form-control" 
+                    ng-options="option as option.name for option in category.options">
+                <option value="">{{ 'SELECT_OPTION' | translate }}</option>
+            </select>
+        </div>
+    </div>
+</div>
