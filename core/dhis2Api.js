@@ -110,7 +110,7 @@ Dhis2Api.factory('LoadFormValues', function($http) {
             multiOrganisationUnit: false
         };
         var cc = de.categoryCombo;
-        var cp = de.attributes.join(";");
+        var cp = _(de.attributes).pluck("id").join(";");
 
         if (cc && cp) {
             params.cc = cc;
@@ -147,6 +147,125 @@ Dhis2Api.factory("DataValueSets", function($resource, commonvariable) {
     return $resource(commonvariable.url + "dataValueSets");
 });
 
+Dhis2Api.factory("DataStore", function($resource, urlApi) {
+    var url = urlApi + "dataStore/dataset-recoding/:key";
+    var resource = $resource(url, null, {
+        update: {method: 'put'},
+        create: {method: 'post'}
+    });
+    
+    return {
+        get: function(key, defaultValue) {
+            return resource.get({key: key}).$promise.
+                then(function(res) { return res.toJSON(); });
+        },
+        
+        getWithDefault: function(key, defaultValue) {
+            return this.get(key).catch(function(error) {
+                if (error.status == 404) {
+                    return defaultValue;
+                } else {
+                    throw error;
+                }
+            });
+        },
+        
+        save: function(key, data) {
+            return resource.update({key: key}, data).$promise.catch(function(error) {
+                if (error.status == 404) {
+                    return resource.save({key: key}, data).$promise;
+                } else {
+                    throw error;
+                }
+            });
+        }
+    };
+});
 
+/* Logging factory: Save entries (any object) in a circular buffer 
+   with a configurable maximum buckets and a maximum entries per bucket.
+   
+   dataStore: 
+    - dataset-recoding/loggin-state -> {"index": CURRENT_BUCKET_INDEX}
+    - dataset-recoding/loggin-bucket-INDEX -> {...}
+*/ 
+Dhis2Api.factory('Logging', function($resource, DataStore) {
+    return function(options) {
+        var maxBucketEntries, maxBuckets, logging;
+        options = options || {};
+        maxBucketEntries = this.maxBucketEntries = options.maxBucketEntries || 100;
+        maxBuckets = this.maxBuckets = options.maxBuckets || 1e5;
+        logging = this;
 
+        var getBucketKey = function(index) {
+            return "logging-bucket-" + index.toString();
+        };
 
+        var getSafeBucketIndex = function(index, offset) {
+            if (offset >= maxBuckets) {
+                return null;
+            } else {
+                var max = maxBuckets;
+                var bucketIndex = (((index - offset) % max) + max) % max;
+                return "logging-bucket-" + bucketIndex.toString();
+            }
+        };
+
+        var getCurrentIndex = function() {
+            return DataStore.getWithDefault("logging-state", null).then(function(state) {
+                if (state) {
+                    return state.index;
+                } else {
+                    return setCurrentIndex(0).then(function() { return 0; });
+                }
+            });
+        };
+
+        var setCurrentIndex = function(newIndex) {
+            return DataStore.save("logging-state", {index: newIndex});
+        };
+            
+        var getData = function() {
+            return getCurrentIndex().then(function(index) {
+                return DataStore.getWithDefault(getBucketKey(index), {entries: []}).then(function(res) { 
+                    return {index: index, entries: res.entries};
+                }); 
+            });
+        };
+        
+        /* Public interface */
+
+        this.getEntries = function(offset) {
+            return getCurrentIndex().then(function(index) {
+                var bucketKey = getSafeBucketIndex(index, offset);
+                if (bucketKey) {
+                    return DataStore.getWithDefault(bucketKey, {entries: []})
+                        .then(function(r) { return r.entries; });
+                } else {
+                    return null;
+                }
+            });
+        };
+
+        this.addEntry = function(newEntry) {
+            return getData().then(function(data) {
+                var entries = data.entries;
+                var index = data.index;
+                var newEntries, newIndex;
+                
+                if (entries.length < maxBucketEntries) {
+                    newIndex = index;
+                    newEntries = [newEntry].concat(entries);
+                } else {
+                    newIndex = (index + 1) % maxBuckets;
+                    newEntries = [newEntry];
+                }
+                return DataStore
+                    .save(getBucketKey(newIndex), {entries: newEntries})
+                    .then(function(res) { 
+                        return newIndex != index ? setCurrentIndex(newIndex) : res 
+                    }); 
+            });
+        };
+    };
+});

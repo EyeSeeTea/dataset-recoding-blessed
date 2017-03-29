@@ -14,7 +14,13 @@
                 <button class="btn btn-default" ng-disabled="!formRead.isInputSelected()" ng-click="loadForm()">{{ 'GET_DATA' | translate }}</button>
                 <button ng-click="cancel()" class="btn btn-default">{{ 'CANCEL' | translate }}</button>
                 <button class="btn btn-primary" ng-show="selectorsMatchFormData()" ng-click="startRecode()">{{ 'RECODE' | translate }} ↓</button>
+                
+                <button class="btn btn-primary btn-logs" ng-click="logs.toggleLogs()">{{ 'LOGS_TITLE' | translate }} {{ logs.isVisible() ? '↑' : '↓' }}</button>
             </div>
+        </div>
+
+        <div ng-hide="updateFormVisible()">
+            <logs accessor="logs"></logs>
         </div>
     </fieldset>
     

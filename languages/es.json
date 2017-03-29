@@ -17,5 +17,11 @@
   "RECODE": "Recodificar",
   "UPDATE": "Actualizar",
   "PREV_YEAR": "Año anterior",
-  "NEXT_YEAR": "Año siguiente" 
+  "NEXT_YEAR": "Año siguiente",
+  "LOGS_TITLE": "Logs", 
+  "LOGS_UPDATED": "Actualizado",
+  "LOGS_USER": "Usuario",
+  "LOGS_DATE": "Fecha",
+  "LOGS_LOAD_MORE": "Carga más...",
+  "LOGS_NO_MORE_ENTRIES": "No hay más entradas en el log"
 }

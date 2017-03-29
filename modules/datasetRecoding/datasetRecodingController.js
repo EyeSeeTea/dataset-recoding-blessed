@@ -1,5 +1,7 @@
-dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScope, $scope, $filter, $translate, $q, Datasets, MetaData, MetaDataAssociations, LoadForm, LoadFormValues, DataValues, CategoryCombos, DataValueSets) {
-
+dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScope, 
+        $scope, $filter, $translate, $q, Datasets, MetaData, 
+        MetaDataAssociations, LoadForm, LoadFormValues, DataValues, 
+        CategoryCombos, DataValueSets, userInfo, Logging) {
     var STATES = {read: "read", update: "update"};
 
     var translate = $filter('translate');
@@ -9,7 +11,8 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
      
     $scope.formRead = {}; 
     $scope.formUpdate = {};
-    
+    $scope.logs = {};
+
     /**
      * Datavalues are ready to be move when:
      *  - data is loaded
@@ -33,7 +36,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
     $scope.cancelUpdate = function() {
         $scope.state = STATES.read;
     }
-
+    
     /**
      * Closes alert row
      */
@@ -177,7 +180,8 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         LoadFormValues(de).success(function(data) {
             $scope.loading = false;
             $scope.currentFormData = data;
-            $scope.currentFormParams = de;
+            // _.clone performs a shadow clone, clone attributes explicitly
+            $scope.currentFormParams = _.extend(_.clone(de), {attributes: _.clone(de.attributes)});
             $scope.dataLoaded = true;
 
             //Enable selects and tabs
@@ -227,7 +231,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
                 ou: de.organisationUnit.id,
                 co: categoryOptionCombo,
                 cc: de.attributes.length > 0 ? de.categoryCombo : null,
-                cp: de.attributes.join(";")
+                cp: _(de.attributes).pluck("id").join(";")
             }
             DataValues.delete(_.pick(datavalue, _.identity));
         });
@@ -247,13 +251,46 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
             if (!targetParams.attributes || targetParams.attributes.length == 0) {
                 categoryOptionComboId = categoryOptionCombos[0].id;
             } else {
-                categoryOptionComboId = findCategoryOptionComboId(targetParams.attributes, categoryOptionCombos);
+                categoryOptionComboId = findCategoryOptionComboId(
+                    _(targetParams.attributes).pluck("id"), 
+                    categoryOptionCombos);
             }
 
             //Found -> send event (now we're ready to post new values)
             $rootScope.$broadcast('categoryOptionComboFound', categoryOptionComboId);
         });
     };
+    
+    var buildLoggingEntry = function(sourceDataElement, targetDataElement) {
+        var buildDataElement = function(de) {
+	        var attributes = _
+	            .chain(de.categories)
+	            .zip(de.attributes)
+	            .map(function(pair) {
+	                return {
+	                    category: _(pair[0]).pick("name", "id"),
+	                    attribute: _(pair[1]).pick("name", "id")
+	                 };
+	            });
+
+            return {
+                dataset: _(de.dataset).pick("displayName", "id"),
+                organisationUnit: de.organisationUnit,
+                period: {displayName: de.period.name, code: de.period.iso},
+                attributes: attributes.value()
+            };
+        };
+
+        return {
+            date: new Date(),
+            user: {
+                displayName: userInfo.displayName, 
+                username: userInfo.userCredentials.username
+            },
+            source: buildDataElement(sourceDataElement),
+            target: buildDataElement(targetDataElement)
+        };
+    }
 
     /**
      *  On new categoryOptionCombo found -> post new values 
@@ -272,6 +309,8 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
         );
 
         dataValueSet.$save(function() {
+            var entry = buildLoggingEntry($scope.currentFormParams, targetParams);
+            $scope.logs.addEntry(entry);
             $scope.showFeedback = true;
             $scope.loading = false;
             $scope.currentForm = null;
@@ -344,7 +383,7 @@ dhisServerUtilsConfig.controller('datasetRecodingController', function($rootScop
             new dhis2.period.DatePicker(dhis2.period.calendar, dhis2.period.format);
         i18n_select_option = "";
     };
-
+    
     //Set event listeners
     $rootScope.$on('formLoaded', formLoaded);
     $rootScope.$on('categoryOptionComboFound', categoryOptionComboFound);

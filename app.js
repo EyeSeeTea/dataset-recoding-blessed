@@ -1,9 +1,15 @@
 var dhisServerUtilsConfig = angular.module("dhisServerUtilsConfig", ['ngRoute', 'ngSanitize', 'Dhis2Api', 'pascalprecht.translate', 'ui.bootstrap', 'd2Menu']);
 
-dhisServerUtilsConfig.config(function($routeProvider) {
+dhisServerUtilsConfig.config(function($routeProvider, urlApi) {
     $routeProvider.when('/DatasetRecoding', {
         templateUrl: "modules/datasetRecoding/datasetRecodingView.html",
-        controller: "datasetRecodingController"
+        controller: "datasetRecodingController",
+        resolve: {
+            userInfo: function() { 
+                return $.get(urlApi + "me")
+                    .fail(function() { alert("Cannot load user info"); }); 
+            }
+        }
     });
     $routeProvider.otherwise({
         redirectTo: '/DatasetRecoding'
