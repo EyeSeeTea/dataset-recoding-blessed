@@ -48,7 +48,8 @@ Dhis2Api.factory("Datasets", function($resource, commonvariable) {
             query: {
                 method: "GET",
                 params: {
-                    fields: "id,displayName,periodType,organisationUnits[id,displayName]"
+                    fields: "id,displayName,periodType,organisationUnits[id,displayName]",
+                    paging: false
                 },
                 isArray: true,
                 transformResponse: function(data, headers) {
