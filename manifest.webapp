@@ -1,5 +1,5 @@
 {
-  "version": "0.0.3",
+  "version": "0.0.5",
   "name": "Dataset Recoding",
   "description": "Recode metadata for existing datasets",
   "launch_path": "index.html",
